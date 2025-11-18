@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useLocale } from '@/contexts/LocaleContext'
 import { updateProfile, updateAvatar } from '@/app/auth/actions'
@@ -10,7 +10,7 @@ import AppNavBar from '@/components/AppNavBar'
 import CurrencyProviderWrapper from '@/components/CurrencyProviderWrapper'
 import AvatarUploader from '@/components/AvatarUploader'
 
-export default function SettingsPage() {
+function SettingsContent() {
   const [username, setUsername] = useState('')
   const [favoriteSports, setFavoriteSports] = useState([]) // Stores sport IDs (database values)
   const [loading, setLoading] = useState(true)
@@ -365,6 +365,18 @@ export default function SettingsPage() {
         </div>
       </div>
     </CurrencyProviderWrapper>
+  )
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-zinc-950">
+        <div className="text-zinc-400">Loading...</div>
+      </div>
+    }>
+      <SettingsContent />
+    </Suspense>
   )
 }
 
