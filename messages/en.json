@@ -1,0 +1,66 @@
+{
+  "common": {
+    "email": "Email",
+    "signIn": "Sign in",
+    "signOut": "Sign Out",
+    "dashboard": "Dashboard",
+    "username": "Username",
+    "coins": "Coins",
+    "loading": "Loading...",
+    "error": "Error",
+    "noUsername": "No username"
+  },
+  "login": {
+    "title": "Sign in",
+    "signUpTitle": "Create an account",
+    "passwordDescription": "Sign in with your email and password.",
+    "signUpDescription": "Create a new account to get started.",
+    "magicLinkDescription": "Enter your email and we'll send you a magic link to sign in.",
+    "emailPlaceholder": "you@example.com",
+    "passwordPlaceholder": "••••••••",
+    "sendMagicLink": "Send magic link",
+    "signInButton": "Sign in",
+    "signUpButton": "Create account",
+    "sending": "Please wait...",
+    "password": "Password",
+    "noAccount": "Don't have an account?",
+    "signUpLink": "Sign up",
+    "haveAccount": "Already have an account?",
+    "signInLink": "Sign in",
+    "orMagicLink": "Or",
+    "useMagicLink": "sign in with a magic link",
+    "backToSignIn": "Back to sign in"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "failedToLoadProfile": "Failed to load profile",
+    "failedToCreateProfile": "Failed to create profile",
+    "editProfile": "Edit Profile"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Personalize your profile and sports preferences",
+    "onboardingWelcome": "Welcome! Please complete your profile to start playing.",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "favoriteSportsLabel": "Select Your Favorite Sports",
+    "selectAtLeastOne": "Please select at least one sport",
+    "saveButton": "Save Profile",
+    "saving": "Saving...",
+    "profileUpdated": "✓ Profile updated successfully!",
+    "backToDashboard": "← Back to Dashboard"
+  },
+  "auth": {
+    "couldNotAuthenticate": "Could not authenticate"
+  },
+  "play": {
+    "title": "Clue Puzzle",
+    "backToDashboard": "Back to Dashboard",
+    "loadingQuestion": "Loading your puzzle...",
+    "goToSettings": "Go to Settings",
+    "nextQuestion": "Next Puzzle",
+    "newBalance": "New balance",
+    "tip": "💡 The fewer clues you use, the more coins you earn!"
+  }
+}
+

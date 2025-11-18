@@ -1,0 +1,68 @@
+{
+  "common": {
+    "email": "Correo electrónico",
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión",
+    "dashboard": "Panel de control",
+    "username": "Nombre de usuario",
+    "coins": "Monedas",
+    "loading": "Cargando...",
+    "error": "Error",
+    "noUsername": "Sin nombre de usuario"
+  },
+  "login": {
+    "title": "Iniciar sesión",
+    "signUpTitle": "Crear una cuenta",
+    "passwordDescription": "Inicia sesión con tu correo electrónico y contraseña.",
+    "signUpDescription": "Crea una nueva cuenta para comenzar.",
+    "magicLinkDescription": "Ingresa tu correo electrónico y te enviaremos un enlace mágico para iniciar sesión.",
+    "emailPlaceholder": "you@example.com",
+    "passwordPlaceholder": "••••••••",
+    "sendMagicLink": "Enviar enlace mágico",
+    "signInButton": "Iniciar sesión",
+    "signUpButton": "Crear cuenta",
+    "sending": "Por favor espera...",
+    "password": "Contraseña",
+    "noAccount": "¿No tienes una cuenta?",
+    "signUpLink": "Regístrate",
+    "haveAccount": "¿Ya tienes una cuenta?",
+    "signInLink": "Iniciar sesión",
+    "orMagicLink": "O",
+    "useMagicLink": "inicia sesión con un enlace mágico",
+    "backToSignIn": "← Volver a iniciar sesión"
+  },
+  "dashboard": {
+    "title": "Panel de control",
+    "failedToLoadProfile": "No se pudo cargar el perfil",
+    "failedToCreateProfile": "No se pudo crear el perfil",
+    "editProfile": "Editar perfil"
+  },
+  "settings": {
+    "title": "Configuración",
+    "description": "Personaliza tu perfil y preferencias deportivas",
+    "onboardingWelcome": "¡Bienvenido! Por favor completa tu perfil para comenzar a jugar.",
+    "usernameLabel": "Nombre de usuario",
+    "usernamePlaceholder": "Ingresa tu nombre de usuario",
+    "favoriteSportsLabel": "Selecciona tus deportes favoritos",
+    "selectAtLeastOne": "Por favor selecciona al menos un deporte",
+    "saveButton": "Guardar perfil",
+    "saving": "Guardando...",
+    "profileUpdated": "✓ ¡Perfil actualizado con éxito!",
+    "backToDashboard": "← Volver al panel"
+  },
+  "auth": {
+    "couldNotAuthenticate": "No se pudo autenticar"
+  },
+  "play": {
+    "title": "Jugar",
+    "backToDashboard": "Volver al panel",
+    "loadingQuestion": "Cargando tu pregunta personalizada...",
+    "goToSettings": "Ir a configuración",
+    "submitAnswer": "Enviar respuesta",
+    "submitting": "Enviando...",
+    "nextQuestion": "Siguiente pregunta",
+    "newBalance": "Nuevo saldo",
+    "tip": "💡 ¡Responde correctamente para ganar monedas!"
+  }
+}
+

@@ -1,0 +1,69 @@
+
+{
+  "common": {
+    "email": "E-mail",
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter",
+    "dashboard": "Tableau de bord",
+    "username": "Nom d'utilisateur",
+    "coins": "Pièces",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "noUsername": "Aucun nom d'utilisateur"
+  },
+  "login": {
+    "title": "Se connecter",
+    "signUpTitle": "Créer un compte",
+    "passwordDescription": "Connectez-vous avec votre adresse e-mail et votre mot de passe.",
+    "signUpDescription": "Créez un nouveau compte pour commencer.",
+    "magicLinkDescription": "Entrez votre adresse e-mail et nous vous enverrons un lien magique pour vous connecter.",
+    "emailPlaceholder": "you@example.com",
+    "passwordPlaceholder": "••••••••",
+    "sendMagicLink": "Envoyer le lien magique",
+    "signInButton": "Se connecter",
+    "signUpButton": "Créer un compte",
+    "sending": "Veuillez patienter...",
+    "password": "Mot de passe",
+    "noAccount": "Vous n'avez pas de compte?",
+    "signUpLink": "S'inscrire",
+    "haveAccount": "Vous avez déjà un compte?",
+    "signInLink": "Se connecter",
+    "orMagicLink": "Ou",
+    "useMagicLink": "connectez-vous avec un lien magique",
+    "backToSignIn": "← Retour à la connexion"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "failedToLoadProfile": "Échec du chargement du profil",
+    "failedToCreateProfile": "Échec de la création du profil",
+    "editProfile": "Modifier le profil"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "description": "Personnalisez votre profil et vos préférences sportives",
+    "onboardingWelcome": "Bienvenue! Veuillez compléter votre profil pour commencer à jouer.",
+    "usernameLabel": "Nom d'utilisateur",
+    "usernamePlaceholder": "Entrez votre nom d'utilisateur",
+    "favoriteSportsLabel": "Sélectionnez vos sports favoris",
+    "selectAtLeastOne": "Veuillez sélectionner au moins un sport",
+    "saveButton": "Enregistrer le profil",
+    "saving": "Enregistrement...",
+    "profileUpdated": "✓ Profil mis à jour avec succès!",
+    "backToDashboard": "← Retour au tableau de bord"
+  },
+  "auth": {
+    "couldNotAuthenticate": "Impossible de s'authentifier"
+  },
+  "play": {
+    "title": "Jouer",
+    "backToDashboard": "Retour au tableau de bord",
+    "loadingQuestion": "Chargement de votre question personnalisée...",
+    "goToSettings": "Aller aux paramètres",
+    "submitAnswer": "Soumettre la réponse",
+    "submitting": "Envoi en cours...",
+    "nextQuestion": "Question suivante",
+    "newBalance": "Nouveau solde",
+    "tip": "💡 Répondez correctement pour gagner des pièces!"
+  }
+}
+

@@ -1,0 +1,68 @@
+{
+  "common": {
+    "email": "E-Mail",
+    "signIn": "Anmelden",
+    "signOut": "Abmelden",
+    "dashboard": "Dashboard",
+    "username": "Benutzername",
+    "coins": "Münzen",
+    "loading": "Lädt...",
+    "error": "Fehler",
+    "noUsername": "Kein Benutzername"
+  },
+  "login": {
+    "title": "Anmelden",
+    "signUpTitle": "Konto erstellen",
+    "passwordDescription": "Melden Sie sich mit Ihrer E-Mail-Adresse und Ihrem Passwort an.",
+    "signUpDescription": "Erstellen Sie ein neues Konto, um loszulegen.",
+    "magicLinkDescription": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen magischen Link zur Anmeldung.",
+    "emailPlaceholder": "you@example.com",
+    "passwordPlaceholder": "••••••••",
+    "sendMagicLink": "Magischen Link senden",
+    "signInButton": "Anmelden",
+    "signUpButton": "Konto erstellen",
+    "sending": "Bitte warten...",
+    "password": "Passwort",
+    "noAccount": "Noch kein Konto?",
+    "signUpLink": "Registrieren",
+    "haveAccount": "Bereits ein Konto?",
+    "signInLink": "Anmelden",
+    "orMagicLink": "Oder",
+    "useMagicLink": "mit magischem Link anmelden",
+    "backToSignIn": "← Zurück zur Anmeldung"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "failedToLoadProfile": "Profil konnte nicht geladen werden",
+    "failedToCreateProfile": "Profil konnte nicht erstellt werden",
+    "editProfile": "Profil bearbeiten"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "description": "Personalisieren Sie Ihr Profil und Ihre Sportpräferenzen",
+    "onboardingWelcome": "Willkommen! Bitte vervollständigen Sie Ihr Profil, um zu beginnen.",
+    "usernameLabel": "Benutzername",
+    "usernamePlaceholder": "Geben Sie Ihren Benutzernamen ein",
+    "favoriteSportsLabel": "Wählen Sie Ihre Lieblingssportarten",
+    "selectAtLeastOne": "Bitte wählen Sie mindestens eine Sportart",
+    "saveButton": "Profil speichern",
+    "saving": "Wird gespeichert...",
+    "profileUpdated": "✓ Profil erfolgreich aktualisiert!",
+    "backToDashboard": "← Zurück zum Dashboard"
+  },
+  "auth": {
+    "couldNotAuthenticate": "Authentifizierung fehlgeschlagen"
+  },
+  "play": {
+    "title": "Spielen",
+    "backToDashboard": "Zurück zum Dashboard",
+    "loadingQuestion": "Lade deine personalisierte Frage...",
+    "goToSettings": "Zu den Einstellungen",
+    "submitAnswer": "Antwort absenden",
+    "submitting": "Wird gesendet...",
+    "nextQuestion": "Nächste Frage",
+    "newBalance": "Neues Guthaben",
+    "tip": "💡 Antworte richtig, um Münzen zu verdienen!"
+  }
+}
+

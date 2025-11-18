@@ -1,0 +1,68 @@
+{
+  "common": {
+    "email": "E-post",
+    "signIn": "Logga in",
+    "signOut": "Logga ut",
+    "dashboard": "Instrumentpanel",
+    "username": "Användarnamn",
+    "coins": "Mynt",
+    "loading": "Laddar...",
+    "error": "Fel",
+    "noUsername": "Inget användarnamn"
+  },
+  "login": {
+    "title": "Logga in",
+    "signUpTitle": "Skapa ett konto",
+    "passwordDescription": "Logga in med din e-postadress och lösenord.",
+    "signUpDescription": "Skapa ett nytt konto för att komma igång.",
+    "magicLinkDescription": "Ange din e-postadress så skickar vi dig en magisk länk för att logga in.",
+    "emailPlaceholder": "you@example.com",
+    "passwordPlaceholder": "••••••••",
+    "sendMagicLink": "Skicka magisk länk",
+    "signInButton": "Logga in",
+    "signUpButton": "Skapa konto",
+    "sending": "Vänta...",
+    "password": "Lösenord",
+    "noAccount": "Har du inget konto?",
+    "signUpLink": "Registrera dig",
+    "haveAccount": "Har du redan ett konto?",
+    "signInLink": "Logga in",
+    "orMagicLink": "Eller",
+    "useMagicLink": "logga in med en magisk länk",
+    "backToSignIn": "← Tillbaka till inloggning"
+  },
+  "dashboard": {
+    "title": "Instrumentpanel",
+    "failedToLoadProfile": "Kunde inte ladda profil",
+    "failedToCreateProfile": "Kunde inte skapa profil",
+    "editProfile": "Redigera profil"
+  },
+  "settings": {
+    "title": "Inställningar",
+    "description": "Anpassa din profil och sportpreferenser",
+    "onboardingWelcome": "Välkommen! Vänligen komplettera din profil för att börja spela.",
+    "usernameLabel": "Användarnamn",
+    "usernamePlaceholder": "Ange ditt användarnamn",
+    "favoriteSportsLabel": "Välj dina favoritsporter",
+    "selectAtLeastOne": "Vänligen välj minst en sport",
+    "saveButton": "Spara profil",
+    "saving": "Sparar...",
+    "profileUpdated": "✓ Profilen har uppdaterats!",
+    "backToDashboard": "← Tillbaka till instrumentpanelen"
+  },
+  "auth": {
+    "couldNotAuthenticate": "Kunde inte autentisera"
+  },
+  "play": {
+    "title": "Spela",
+    "backToDashboard": "Tillbaka till instrumentpanelen",
+    "loadingQuestion": "Laddar din personliga fråga...",
+    "goToSettings": "Gå till inställningar",
+    "submitAnswer": "Skicka svar",
+    "submitting": "Skickar...",
+    "nextQuestion": "Nästa fråga",
+    "newBalance": "Nytt saldo",
+    "tip": "💡 Svara rätt för att tjäna mynt!"
+  }
+}
+
