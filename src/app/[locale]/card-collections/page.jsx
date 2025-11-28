@@ -23,11 +23,16 @@ export default async function CardCollectionsPage({ params }) {
   }
 
   // Fetch user profile for nav bar
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('username, coins, keys')
     .eq('id', user.id)
     .single()
+
+  if (profileError) {
+    console.error('Failed to load profile:', profileError)
+    redirect(`/${locale}/dashboard`)
+  }
 
   // Fetch all card templates
   const { data: templates, error: templatesError } = await supabase
@@ -80,13 +85,13 @@ export default async function CardCollectionsPage({ params }) {
 
   return (
     <CurrencyProviderWrapper
-      initialCoins={profile?.coins || 0}
-      initialKeys={profile?.keys || 0}
+      initialCoins={profile.coins || 0}
+      initialKeys={profile.keys || 0}
     >
       <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
         <AppNavBar
           locale={locale}
-          username={profile?.username}
+          username={profile.username}
         />
         <CardCollectionsUI
           templates={templates || []}

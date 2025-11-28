@@ -63,10 +63,10 @@ export default function HallOfFameUI({ templates, mythicOwners, locale }) {
         {/* Header */}
         <div className="mb-12 text-center">
           <h1 className="mb-4 text-5xl font-bold text-zinc-50">
-            🏆 Card Collections
+            🏆 Hall of Fame
           </h1>
           <p className="text-xl text-zinc-400">
-            The complete collection showcase
+            Legendary cards and rare collectibles
           </p>
         </div>
 
