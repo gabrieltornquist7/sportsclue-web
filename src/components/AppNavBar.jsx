@@ -69,6 +69,26 @@ export default function AppNavBar({ locale, username }) {
                 Store
               </a>
               <a
+                href={`/${locale}/marketplace`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isActive('/marketplace')
+                    ? 'bg-blue-600 text-white'
+                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
+                }`}
+              >
+                Marketplace
+              </a>
+              <a
+                href={`/${locale}/trading`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isActive('/trading')
+                    ? 'bg-blue-600 text-white'
+                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
+                }`}
+              >
+                Trading
+              </a>
+              <a
                 href={`/${locale}/inventory`}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isActive('/inventory')
