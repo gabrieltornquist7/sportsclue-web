@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useLocale } from '@/contexts/LocaleContext'
 import { useCurrency } from '@/contexts/CurrencyContext'
 import { getPersonalizedPuzzle, submitPuzzleGuess } from '@/app/game/actions'
-import { addLegendaryBoxDrop } from '@/app/store/actions'
 
 export default function PuzzleUI({ userId, locale, username }) {
   const { coins, updateCurrency } = useCurrency()
@@ -96,19 +95,16 @@ export default function PuzzleUI({ userId, locale, username }) {
         if (response.newCoins !== undefined || response.newKeys !== undefined) {
           updateCurrency(response.newCoins, response.newKeys)
         }
-        
-        // AIRTIGHT: Server-side drop calculation with buffs
-        const dropResult = await addLegendaryBoxDrop(userId)
-        const dropMessage = dropResult.success && dropResult.dropped ? dropResult.message : null
-        
-        // Set result with ego message
+
+        // Set result with ego message and drop notifications
         setResult({
           correct: true,
           egoMessage: response.egoMessage,
           coinsEarned: response.coinsEarned,
           showShareButton: response.showShareButton,
           correctAnswer: response.correctAnswer,
-          legendaryDrop: dropMessage
+          keyDropped: response.keyDropped, // From server-side buff calculation
+          legendaryBoxDropped: response.legendaryBoxDropped // From server-side drop calculation
         })
         
         setGameOver(true)
@@ -287,11 +283,36 @@ export default function PuzzleUI({ userId, locale, username }) {
                     New balance: {coins} coins
                   </p>
                 )}
-                {result.legendaryDrop && (
-                  <p className="mt-2 text-lg font-bold text-yellow-400">
-                    {result.legendaryDrop}
-                  </p>
+                {/* Premium Key Drop Notification */}
+                {result.keyDropped && (
+                  <div className="mt-4 rounded-xl border-2 border-yellow-400/60 bg-gradient-to-br from-yellow-900/40 via-yellow-800/30 to-amber-900/40 p-5 shadow-lg shadow-yellow-500/20 backdrop-blur-sm">
+                    <div className="flex items-center justify-center gap-3 mb-2">
+                      <div className="text-3xl animate-bounce">🔑</div>
+                      <p className="text-2xl font-bold text-yellow-200">
+                        Legendary Key Found!
+                      </p>
+                    </div>
+                    <p className="text-sm text-yellow-300/90">
+                      Use it to unlock Legendary Boxes in the store
+                    </p>
+                  </div>
                 )}
+
+                {/* Premium Legendary Box Drop Notification */}
+                {result.legendaryBoxDropped && (
+                  <div className="mt-4 rounded-xl border-2 border-yellow-400/60 bg-gradient-to-br from-yellow-900/40 via-yellow-800/30 to-amber-900/40 p-5 shadow-lg shadow-yellow-500/20 backdrop-blur-sm">
+                    <div className="flex items-center justify-center gap-3 mb-2">
+                      <div className="text-3xl animate-bounce">📦</div>
+                      <p className="text-2xl font-bold text-yellow-200">
+                        Legendary Box Dropped!
+                      </p>
+                    </div>
+                    <p className="text-sm text-yellow-300/90">
+                      Open in your inventory for a chance at Legendary and Mythic cards
+                    </p>
+                  </div>
+                )}
+
                 {result.showShareButton && (
                   <button
                     onClick={handleShare}

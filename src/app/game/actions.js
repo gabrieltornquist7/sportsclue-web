@@ -155,65 +155,215 @@ export async function submitPuzzleGuess(puzzleId, selectedAnswer, cluesUsed, use
       // AIRTIGHT: Fetch equipped cards and apply coin buffs
       const { data: equippedCards, error: equippedError } = await supabase
         .from('minted_cards')
-        .select(`
-          id,
-          card_templates(
-            buff_type,
-            buff_value,
-            sport_category
-          )
-        `)
+        .select('id, template_id')
         .eq('user_id', userId)
         .eq('is_equipped', true)
 
-      if (!equippedError && equippedCards) {
-        let globalCoinBonus = 0
-        let categoryCoinBonus = 0
+      console.log('[COIN BONUS DEBUG] Equipped cards:', equippedCards)
+      console.log('[COIN BONUS DEBUG] Equipped error:', equippedError)
+      console.log('[COIN BONUS DEBUG] Puzzle sport_category:', puzzle.sport_category)
+      console.log('[COIN BONUS DEBUG] Base coins before buff:', baseCoins)
 
-        // Loop through equipped cards and calculate buffs
-        for (const card of equippedCards) {
-          const template = Array.isArray(card.card_templates)
-            ? card.card_templates[0]
-            : card.card_templates
+      if (!equippedError && equippedCards && equippedCards.length > 0) {
+        // Extract card template IDs
+        const templateIds = equippedCards.map(card => card.template_id).filter(Boolean)
+        console.log('[COIN BONUS DEBUG] Template IDs:', templateIds)
 
-          if (!template) continue
+        if (templateIds.length > 0) {
+          // Fetch card templates with buff information
+          const { data: cardTemplates, error: templateError } = await supabase
+            .from('card_templates')
+            .select('id, buff_type, buff_value, sport_category')
+            .in('id', templateIds)
 
-          const buffType = template.buff_type
-          const buffValue = template.buff_value || 0
+          console.log('[COIN BONUS DEBUG] Card templates:', cardTemplates)
+          console.log('[COIN BONUS DEBUG] Template error:', templateError)
 
-          // Apply GLOBAL_COIN_BONUS (affects all coin rewards)
-          if (buffType === 'GLOBAL_COIN_BONUS') {
-            globalCoinBonus += buffValue
-          }
+          if (!templateError && cardTemplates && cardTemplates.length > 0) {
+            let totalMultiplier = 0
 
-          // Apply COIN_BONUS (category-specific, only if sport matches)
-          if (buffType === 'COIN_BONUS' && template.sport_category === puzzle.sport_category) {
-            categoryCoinBonus += buffValue
+            // Loop through card templates and calculate buffs
+            for (const template of cardTemplates) {
+              const buffType = template.buff_type
+              const buffValue = template.buff_value || 0
+
+              console.log('[COIN BONUS DEBUG] Template:', { buffType, buffValue, sport_category: template.sport_category })
+
+              // Apply GLOBAL_COIN_BONUS (affects all coin rewards)
+              if (buffType === 'GLOBAL_COIN_BONUS') {
+                console.log('[COIN BONUS DEBUG] Applying GLOBAL_COIN_BONUS:', buffValue)
+                totalMultiplier += buffValue
+              }
+
+              // Apply COIN_BONUS (category-specific, only if sport_category matches puzzle sport_category)
+              if (buffType === 'COIN_BONUS' && template.sport_category === puzzle.sport_category) {
+                console.log('[COIN BONUS DEBUG] Applying COIN_BONUS:', buffValue, 'for category:', template.sport_category)
+                totalMultiplier += buffValue
+              }
+            }
+
+            console.log('[COIN BONUS DEBUG] Total multiplier:', totalMultiplier)
+            console.log('[COIN BONUS DEBUG] Calculation:', baseCoins, '* (1 +', totalMultiplier, ')')
+
+            // Apply multiplier to base coin reward
+            // buff_value is stored as decimal (e.g., 0.10 for 10%), so multiply by (1 + totalMultiplier)
+            baseCoins = Math.round(baseCoins * (1 + totalMultiplier))
+            console.log('[COIN BONUS DEBUG] Final coins after buff:', baseCoins)
           }
         }
-
-        // Apply buffs to base coin reward
-        const totalBonus = globalCoinBonus + categoryCoinBonus
-        baseCoins = Math.floor(baseCoins * (1 + totalBonus / 100)) // buff_value is percentage
       }
 
       const coinsToAdd = baseCoins
 
-      // Update user's coins (even if 0, to ensure consistency)
-      const { data: profile } = await supabase
+      // AIRTIGHT: Calculate Legendary Box drop rate with KEY buffs
+      // DEVELOPER OVERRIDE: Check if this is Gabriel's admin account
+      // Note: Supabase auth.users table stores email, but profiles might not have it
+      // Let's check auth.users instead
+      const { data: authUser, error: authError } = await supabase.auth.getUser()
+
+      console.log('[AUTH DEBUG] Auth user:', authUser)
+      console.log('[AUTH DEBUG] Auth error:', authError)
+      console.log('[AUTH DEBUG] User ID from param:', userId)
+
+      const userEmail = authUser?.user?.email
+      const isDevOverride = userEmail === 'gabrieltornquist7@gmail.com'
+      let baseDropRate = isDevOverride ? 1.0 : 0.01 // DEV: 100% for testing, PROD: 1%
+
+      console.log('[AUTH DEBUG] User email:', userEmail)
+      console.log('[AUTH DEBUG] Is dev override?', isDevOverride)
+
+      if (isDevOverride) {
+        console.log('🔧 [DEVELOPER OVERRIDE] Base drop rate set to 100% for admin testing')
+      }
+
+      let totalKeyBonus = 0
+
+      // Re-use the equipped cards data we already fetched for coin buffs
+      if (!equippedError && equippedCards && equippedCards.length > 0) {
+        const templateIds = equippedCards.map(card => card.template_id).filter(Boolean)
+
+        if (templateIds.length > 0) {
+          // Fetch card templates with KEY buff information
+          const { data: keyCardTemplates, error: keyTemplateError } = await supabase
+            .from('card_templates')
+            .select('id, buff_type, buff_value, sport_category')
+            .in('id', templateIds)
+
+          console.log('[KEY DROP DEBUG] Card templates for key buffs:', keyCardTemplates)
+          console.log('[KEY DROP DEBUG] Template error:', keyTemplateError)
+
+          if (!keyTemplateError && keyCardTemplates && keyCardTemplates.length > 0) {
+            // Loop through card templates and calculate key drop rate buffs
+            for (const template of keyCardTemplates) {
+              const buffType = template.buff_type
+              const buffValue = template.buff_value || 0
+
+              // Apply GLOBAL_KEY_DROP_RATE (affects all puzzles)
+              if (buffType === 'GLOBAL_KEY_DROP_RATE') {
+                console.log('[KEY DROP DEBUG] Applying GLOBAL_KEY_DROP_RATE:', buffValue)
+                totalKeyBonus += buffValue
+              }
+
+              // Apply KEY_DROP_RATE (category-specific, only if sport_category matches)
+              if (buffType === 'KEY_DROP_RATE' && template.sport_category === puzzle.sport_category) {
+                console.log('[KEY DROP DEBUG] Applying KEY_DROP_RATE:', buffValue, 'for category:', template.sport_category)
+                totalKeyBonus += buffValue
+              }
+            }
+          }
+        }
+      }
+
+      const finalDropRate = baseDropRate + totalKeyBonus
+
+      // Enhanced logging for drop rate calculation
+      console.log('═══════════════════════════════════════════════')
+      console.log('🎲 LEGENDARY BOX DROP CALCULATION')
+      console.log('═══════════════════════════════════════════════')
+      console.log(`Base Drop Rate: ${baseDropRate} (${(baseDropRate * 100).toFixed(1)}%)`)
+      console.log(`Total Buffs:    +${totalKeyBonus} (+${(totalKeyBonus * 100).toFixed(1)}%)`)
+      console.log(`Final Rate:     ${finalDropRate} (${(finalDropRate * 100).toFixed(1)}%)`)
+      console.log('═══════════════════════════════════════════════')
+
+      // Roll for Legendary Box drop
+      const dropRoll = Math.random()
+      const keyDropped = dropRoll < finalDropRate
+      console.log(`🎰 Roll: ${dropRoll.toFixed(4)} ${keyDropped ? '✅ KEY DROPPED!' : '❌ No drop'}`)
+      console.log('═══════════════════════════════════════════════')
+
+      // AIRTIGHT: Calculate Legendary Box drop rate (separate from keys)
+      // DEV OVERRIDE: Set to 100% for Gabriel's testing
+      const baseBoxDropRate = isDevOverride ? 1.0 : 0.01 // DEV: 100% for testing, PROD: 1%
+
+      if (isDevOverride) {
+        console.log('🔧 [DEVELOPER OVERRIDE] Legendary Box drop rate set to 100% for admin testing')
+      }
+
+      // For now, legendary boxes don't have buff-based rate increases (only base rate)
+      // This can be expanded later to support box drop rate buffs
+      const finalBoxDropRate = baseBoxDropRate
+
+      console.log('═══════════════════════════════════════════════')
+      console.log('📦 LEGENDARY BOX DROP CALCULATION')
+      console.log('═══════════════════════════════════════════════')
+      console.log(`Base Box Drop Rate: ${baseBoxDropRate} (${(baseBoxDropRate * 100).toFixed(1)}%)`)
+      console.log(`Final Box Rate:     ${finalBoxDropRate} (${(finalBoxDropRate * 100).toFixed(1)}%)`)
+      console.log('═══════════════════════════════════════════════')
+
+      // Roll for Legendary Box drop
+      const boxDropRoll = Math.random()
+      const legendaryBoxDropped = boxDropRoll < finalBoxDropRate
+      console.log(`🎰 Box Roll: ${boxDropRoll.toFixed(4)} ${legendaryBoxDropped ? '✅ BOX DROPPED!' : '❌ No drop'}`)
+      console.log('═══════════════════════════════════════════════')
+
+      // If box dropped, add it to user's inventory
+      if (legendaryBoxDropped) {
+        const { error: boxInventoryError } = await supabase
+          .from('user_box_inventory')
+          .insert({
+            user_id: userId,
+            box_type: 'legendary_box'
+          })
+
+        if (boxInventoryError) {
+          console.error('❌ Failed to add legendary box to inventory:', boxInventoryError)
+        } else {
+          console.log('✅ Legendary box added to inventory')
+        }
+      }
+
+      // Update user's coins and keys
+      const { data: profile, error: profileFetchError } = await supabase
         .from('profiles')
-        .select('coins')
+        .select('coins, keys')
         .eq('id', userId)
         .single()
 
-      const newCoins = (profile?.coins || 0) + coinsToAdd
+      console.log('[UPDATE DEBUG] Profile before update:', profile)
+      console.log('[UPDATE DEBUG] Profile fetch error:', profileFetchError)
 
-      await supabase
+      const newCoins = (profile?.coins || 0) + coinsToAdd
+      const newKeys = (profile?.keys || 0) + (keyDropped ? 1 : 0)
+
+      console.log('[UPDATE DEBUG] Old coins:', profile?.coins, '| Coins to add:', coinsToAdd, '| New coins:', newCoins)
+      console.log('[UPDATE DEBUG] Old keys:', profile?.keys, '| Key dropped?', keyDropped, '| New keys:', newKeys)
+
+      const { error: updateError } = await supabase
         .from('profiles')
-        .update({ coins: newCoins })
+        .update({
+          coins: newCoins,
+          keys: newKeys
+        })
         .eq('id', userId)
 
-      // Get updated keys (in case they changed elsewhere)
+      console.log('[UPDATE DEBUG] Update error:', updateError)
+      if (updateError) {
+        console.error('❌ Failed to update profile:', updateError)
+      } else {
+        console.log('✅ Profile updated successfully - New keys:', newKeys)
+      }
+
+      // Get updated profile for return
       const { data: updatedProfile } = await supabase
         .from('profiles')
         .select('keys')
@@ -240,7 +390,9 @@ export async function submitPuzzleGuess(puzzleId, selectedAnswer, cluesUsed, use
         showShareButton: cluesUsed === 1,
         correctAnswer: puzzle.answer,
         newCoins: newCoins,
-        newKeys: updatedProfile?.keys || 0
+        newKeys: updatedProfile?.keys || 0,
+        keyDropped: keyDropped,
+        legendaryBoxDropped: legendaryBoxDropped
       }
     } else {
       // Wrong answer

@@ -314,14 +314,16 @@ export async function openBox(boxId, boxType, userId) {
       // Standard: 80% Common, 20% Rare
       targetRarity = Math.random() < 0.8 ? 'common' : 'rare'
     } else if (boxType === 'pro_box') {
-      // Pro: 60% Rare, 35% Epic, 5% Legendary
+      // Pro: 60% Rare, 34.9% Epic, 5% Legendary, 0.1% Mythic
       const roll = Math.random()
       if (roll < 0.6) {
         targetRarity = 'rare'
-      } else if (roll < 0.95) {
+      } else if (roll < 0.949) { // 0.6 + 0.349 = 0.949
         targetRarity = 'epic'
-      } else {
+      } else if (roll < 0.999) { // 0.949 + 0.05 = 0.999
         targetRarity = 'legendary'
+      } else {
+        targetRarity = 'mythic'
       }
     } else {
       return { error: 'Invalid box type' }
@@ -417,9 +419,16 @@ export async function unlockBox(boxId, userId) {
       .update({ keys: newKeys })
       .eq('id', userId)
 
-    // Roll for card: 50% Epic, 50% Legendary (high-stakes coin flip)
+    // Roll for card: 60% Epic, 39.5% Legendary, 0.5% Mythic
     const roll = Math.random()
-    const targetRarity = roll < 0.5 ? 'epic' : 'legendary'
+    let targetRarity = ''
+    if (roll < 0.6) {
+      targetRarity = 'epic'
+    } else if (roll < 0.995) { // 0.6 + 0.395 = 0.995
+      targetRarity = 'legendary'
+    } else {
+      targetRarity = 'mythic'
+    }
 
     // Fetch available card templates for this rarity
     // Get all templates of this rarity, then filter in code for available ones
