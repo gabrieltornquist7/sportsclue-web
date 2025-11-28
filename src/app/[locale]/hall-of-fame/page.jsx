@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getTranslations, createTranslator } from '@/lib/translations'
 import { redirect } from 'next/navigation'
 import AppNavBar from '@/components/AppNavBar'
+import CurrencyProviderWrapper from '@/components/CurrencyProviderWrapper'
 import HallOfFameUI from './HallOfFameUI'
 
 export default async function HallOfFamePage({ params }) {
@@ -78,17 +79,22 @@ export default async function HallOfFamePage({ params }) {
     }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
-      <AppNavBar 
-        locale={locale}
-        username={profile?.username}
-      />
-      <HallOfFameUI 
-        templates={templates || []}
-        mythicOwners={mythicOwners}
-        locale={locale}
-      />
-    </div>
+    <CurrencyProviderWrapper
+      initialCoins={profile?.coins || 0}
+      initialKeys={profile?.keys || 0}
+    >
+      <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
+        <AppNavBar
+          locale={locale}
+          username={profile?.username}
+        />
+        <HallOfFameUI
+          templates={templates || []}
+          mythicOwners={mythicOwners}
+          locale={locale}
+        />
+      </div>
+    </CurrencyProviderWrapper>
   )
 }
 

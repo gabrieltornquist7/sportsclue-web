@@ -29,7 +29,7 @@ export default async function PlayPage({ params }) {
   // ==========================================
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('username, coins, favorite_sports')
+    .select('username, coins, keys, favorite_sports')
     .eq('id', user.id)
     .single()
 
