@@ -196,10 +196,10 @@ export async function addLegendaryBoxDrop(userId) {
 async function mintCard(templateId, userId) {
   const supabase = await createClient()
 
-  // Get template with current mint count
+  // Get template info for metadata (before minting)
   const { data: template, error: templateError } = await supabase
     .from('card_templates')
-    .select('id, name, rarity, description, max_mints, current_mints, base_image_url')
+    .select('id, name, rarity, description, max_mints, base_image_url')
     .eq('id', templateId)
     .single()
 
@@ -207,13 +207,33 @@ async function mintCard(templateId, userId) {
     return { error: 'Card template not found' }
   }
 
-  // Check if minting is allowed
-  if (template.max_mints !== null && template.current_mints >= template.max_mints) {
-    return { error: 'Card template has reached maximum mints' }
+  // Use atomic RPC function to mint the card
+  // This ensures current_mints is updated atomically and prevents race conditions
+  const { data: mintResult, error: rpcError } = await supabase
+    .rpc('mint_card_atomic', {
+      p_template_id: templateId,
+      p_user_id: userId
+    })
+
+  if (rpcError) {
+    console.error('Error calling mint_card_atomic RPC:', {
+      message: rpcError.message,
+      details: rpcError.details,
+      hint: rpcError.hint,
+      code: rpcError.code,
+      fullError: JSON.stringify(rpcError, null, 2)
+    })
+    return { error: `Failed to mint card: ${rpcError.message || 'Unknown error'}` }
   }
 
-  // Calculate serial number
-  const serialNumber = (template.current_mints || 0) + 1
+  // Check if RPC returned an error
+  const result = mintResult[0]
+  if (result.error_message) {
+    return { error: result.error_message }
+  }
+
+  const mintedCardId = result.minted_card_id
+  const serialNumber = result.serial_number
 
   // Determine final_image_url based on rarity
   let finalImageUrl = ''
@@ -231,45 +251,21 @@ async function mintCard(templateId, userId) {
     finalImageUrl = template.base_image_url || ''
   }
 
-  // Insert minted card
-  const { data: mintedCard, error: mintError } = await supabase
-    .from('minted_cards')
-    .insert({
-      template_id: templateId,
-      user_id: userId,
-      serial_number: serialNumber,
-      final_image_url: finalImageUrl
-    })
-    .select()
-    .single()
-
-  if (mintError) {
-    console.error('Error minting card:', {
-      message: mintError.message,
-      details: mintError.details,
-      hint: mintError.hint,
-      code: mintError.code,
-      fullError: JSON.stringify(mintError, null, 2)
-    })
-    return { error: `Failed to mint card: ${mintError.message || 'Unknown error'}` }
-  }
-
-  // Update template's current_mints count
+  // Update the minted card with the final_image_url
   const { error: updateError } = await supabase
-    .from('card_templates')
-    .update({ current_mints: serialNumber })
-    .eq('id', templateId)
+    .from('minted_cards')
+    .update({ final_image_url: finalImageUrl })
+    .eq('id', mintedCardId)
 
   if (updateError) {
-    console.error('Error updating template mint count:', updateError)
-    // Card was minted but count wasn't updated - this is a data consistency issue
-    // In production, you'd want to use a database transaction or RPC function
+    console.error('Error updating card image:', updateError)
+    // Card is still minted, just missing image URL
   }
 
   return {
     success: true,
     card: {
-      id: mintedCard.id,
+      id: mintedCardId,
       name: template.name,
       rarity: template.rarity,
       description: template.description,
