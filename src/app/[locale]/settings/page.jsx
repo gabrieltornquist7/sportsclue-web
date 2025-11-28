@@ -226,48 +226,38 @@ function SettingsContent() {
   }
 
   return (
-    <CurrencyProviderWrapper 
-      initialCoins={coins}
-      initialKeys={keys}
-    >
-      <AppNavBar 
-        locale={params.locale}
-        username={username}
-      />
-      <div className="flex min-h-[calc(100vh-64px)] items-center justify-center bg-zinc-950 p-6 font-sans">
-        <div className="w-full max-w-2xl rounded-lg border border-zinc-800 bg-zinc-900 p-8 shadow-xl">
-        {isOnboarding && (
-          <div className="mb-6 rounded-md bg-blue-900/20 border border-blue-800 p-4">
-            <p className="text-center text-blue-300 font-medium">
-              {t('settings.onboardingWelcome')}
+    <>
+      {loading ? (
+        <div className="flex min-h-screen items-center justify-center bg-zinc-950">
+          <div className="text-zinc-400">Loading...</div>
+        </div>
+      ) : (
+        <CurrencyProviderWrapper
+          initialCoins={coins}
+          initialKeys={keys}
+        >
+          <AppNavBar
+            locale={params.locale}
+            username={username}
+          />
+          <div className="flex min-h-[calc(100vh-64px)] items-center justify-center bg-zinc-950 p-6 font-sans">
+            <div className="w-full max-w-2xl rounded-lg border border-zinc-800 bg-zinc-900 p-8 shadow-xl">
+            {isOnboarding && (
+              <div className="mb-6 rounded-md bg-blue-900/20 border border-blue-800 p-4">
+                <p className="text-center text-blue-300 font-medium">
+                  {t('settings.onboardingWelcome')}
+                </p>
+              </div>
+            )}
+
+            <h1 className="mb-2 text-3xl font-semibold text-zinc-50">
+              {t('settings.title')}
+            </h1>
+            <p className="mb-8 text-sm text-zinc-400">
+              {t('settings.description')}
             </p>
-          </div>
-        )}
 
-        <h1 className="mb-2 text-3xl font-semibold text-zinc-50">
-          {t('settings.title')}
-        </h1>
-        <p className="mb-8 text-sm text-zinc-400">
-          {t('settings.description')}
-        </p>
-
-        {loading ? (
-          <div className="space-y-6 animate-pulse">
-            {/* Loading Skeleton */}
-            <div className="space-y-4">
-              <div className="h-20 w-20 rounded-full bg-zinc-800"></div>
-              <div className="h-10 bg-zinc-800 rounded-md"></div>
-            </div>
-            <div className="h-10 bg-zinc-800 rounded-md"></div>
-            <div className="space-y-2">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-12 bg-zinc-800 rounded-md"></div>
-              ))}
-            </div>
-            <div className="h-12 bg-zinc-800 rounded-md"></div>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
             {/* Profile Picture Section - Dumb Component */}
             <AvatarUploader
               avatarUrl={avatarUrl}
@@ -335,36 +325,37 @@ function SettingsContent() {
             >
               {saving ? t('settings.saving') : t('settings.saveButton')}
             </button>
-          </form>
-        )}
+            </form>
 
-        {/* Message Display */}
-        {message && (
-          <div
-            className={`mt-4 rounded-md p-3 text-center text-sm ${
-              message.type === 'error'
-                ? 'bg-red-900/20 text-red-400'
-                : 'bg-green-900/20 text-green-400'
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
+            {/* Message Display */}
+            {message && (
+              <div
+                className={`mt-4 rounded-md p-3 text-center text-sm ${
+                  message.type === 'error'
+                    ? 'bg-red-900/20 text-red-400'
+                    : 'bg-green-900/20 text-green-400'
+                }`}
+              >
+                {message.text}
+              </div>
+            )}
 
-        {/* Back to Dashboard Link (only if not onboarding) */}
-        {!isOnboarding && (
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => router.push(`/${params.locale}/dashboard`)}
-              className="text-sm text-blue-400 hover:underline"
-            >
-              {t('settings.backToDashboard')}
-            </button>
+            {/* Back to Dashboard Link (only if not onboarding) */}
+            {!isOnboarding && (
+              <div className="mt-6 text-center">
+                <button
+                  onClick={() => router.push(`/${params.locale}/dashboard`)}
+                  className="text-sm text-blue-400 hover:underline"
+                >
+                  {t('settings.backToDashboard')}
+                </button>
+              </div>
+            )}
+            </div>
           </div>
-        )}
-        </div>
-      </div>
-    </CurrencyProviderWrapper>
+        </CurrencyProviderWrapper>
+      )}
+    </>
   )
 }
 
