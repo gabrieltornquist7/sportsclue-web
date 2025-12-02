@@ -17,7 +17,9 @@ import {
   Trophy,
   Package,
   LayoutGrid,
-  FolderOpen
+  FolderOpen,
+  Store,
+  ArrowRightLeft
 } from 'lucide-react'
 
 export default function AppNavBar({ locale, username }) {
@@ -44,7 +46,7 @@ export default function AppNavBar({ locale, username }) {
   }
 
   const isCollectionsActive = () => {
-    return isActive('/store') || isActive('/inventory') || isActive('/card-collections')
+    return isActive('/store') || isActive('/inventory') || isActive('/card-collections') || isActive('/marketplace') || isActive('/trading')
   }
 
   // Close menus when clicking outside
@@ -137,6 +139,20 @@ export default function AppNavBar({ locale, username }) {
                         >
                           <Package className="w-4 h-4" />
                           <span>Store</span>
+                        </a>
+                        <a
+                          href={`/${locale}/marketplace`}
+                          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-zinc-300 hover:text-white hover:bg-zinc-800/50 transition-all duration-200"
+                        >
+                          <Store className="w-4 h-4" />
+                          <span>Marketplace</span>
+                        </a>
+                        <a
+                          href={`/${locale}/trading`}
+                          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-zinc-300 hover:text-white hover:bg-zinc-800/50 transition-all duration-200"
+                        >
+                          <ArrowRightLeft className="w-4 h-4" />
+                          <span>Trading</span>
                         </a>
                         <a
                           href={`/${locale}/inventory`}
@@ -314,6 +330,28 @@ export default function AppNavBar({ locale, username }) {
                     >
                       <Package className="w-5 h-5" />
                       <span>Store</span>
+                    </a>
+                    <a
+                      href={`/${locale}/marketplace`}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        isActive('/marketplace')
+                          ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
+                          : 'text-zinc-300 hover:text-white hover:bg-zinc-800/50'
+                      }`}
+                    >
+                      <Store className="w-5 h-5" />
+                      <span>Marketplace</span>
+                    </a>
+                    <a
+                      href={`/${locale}/trading`}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        isActive('/trading')
+                          ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
+                          : 'text-zinc-300 hover:text-white hover:bg-zinc-800/50'
+                      }`}
+                    >
+                      <ArrowRightLeft className="w-5 h-5" />
+                      <span>Trading</span>
                     </a>
                     <a
                       href={`/${locale}/inventory`}
