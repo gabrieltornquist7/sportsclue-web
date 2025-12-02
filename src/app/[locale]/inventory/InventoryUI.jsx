@@ -7,13 +7,19 @@ import { useCurrency } from '@/contexts/CurrencyContext'
 import { createClient } from '@/lib/supabase/client'
 import { openBox, unlockBox } from '@/app/store/actions'
 import { equipCard, unequipCard } from '@/app/auth/actions'
+import { createListing } from '@/app/marketplace/actions'
 import Card from '@/components/Card'
+import { Store, Coins } from 'lucide-react'
 
 // Card Details Modal Component - Has its own local state
 function CardDetailsModal({ card, locale, onClose, onCardUpdate }) {
   const [modalCard, setModalCard] = useState(card)
   const [equipping, setEquipping] = useState(false)
   const [message, setMessage] = useState(null)
+  const [showListingForm, setShowListingForm] = useState(false)
+  const [listingPrice, setListingPrice] = useState('')
+  const [listing, setListing] = useState(false)
+  const [isListed, setIsListed] = useState(false)
   // Track if we just updated internally to prevent useEffect from overwriting
   const justUpdatedRef = useRef(false)
 
@@ -27,13 +33,40 @@ function CardDetailsModal({ card, locale, onClose, onCardUpdate }) {
     // Sync with prop when it changes from parent
     // Only update if the prop actually has different values
     if (card && (
-      !modalCard || 
-      card.id !== modalCard.id || 
+      !modalCard ||
+      card.id !== modalCard.id ||
       card.isEquipped !== modalCard.isEquipped
     )) {
       setModalCard(card)
     }
   }, [card, modalCard])
+
+  // Check if card is already listed
+  useEffect(() => {
+    const checkListing = async () => {
+      try {
+        const supabase = createClient()
+        const { data, error } = await supabase
+          .from('marketplace_listings')
+          .select('id')
+          .eq('card_id', modalCard.id)
+          .eq('status', 'active')
+          .single()
+
+        if (!error && data) {
+          setIsListed(true)
+        } else {
+          setIsListed(false)
+        }
+      } catch (err) {
+        setIsListed(false)
+      }
+    }
+
+    if (modalCard?.id) {
+      checkListing()
+    }
+  }, [modalCard?.id])
 
   const handleEquip = async () => {
     const formData = new FormData()
@@ -72,32 +105,62 @@ function CardDetailsModal({ card, locale, onClose, onCardUpdate }) {
     const formData = new FormData()
     formData.append('cardId', modalCard.id)
     formData.append('locale', locale)
-    
+
     setEquipping(true)
     setMessage(null)
-    
+
     const result = await unequipCard(formData)
-    
+
     if (result?.error) {
       setMessage({ type: 'error', text: result.error })
       setEquipping(false)
     } else if (result?.success && result.updatedCard) {
       setMessage({ type: 'success', text: 'Card unequipped successfully!' })
-      
+
       // CRITICAL: Mark that we're updating internally
       justUpdatedRef.current = true
-      
+
       // CRITICAL: Update local state IMMEDIATELY - this shows "Equip" button instantly
       setModalCard(result.updatedCard)
-      
+
       // CRITICAL: Notify parent component to update its state
       if (onCardUpdate) {
         onCardUpdate(result.updatedCard)
       }
-      
+
       setEquipping(false)
     } else {
       setEquipping(false)
+    }
+  }
+
+  const handleListOnMarketplace = async () => {
+    if (!listingPrice || parseInt(listingPrice) <= 0) {
+      setMessage({ type: 'error', text: 'Please enter a valid price' })
+      return
+    }
+
+    setListing(true)
+    setMessage(null)
+
+    const formData = new FormData()
+    formData.append('cardId', modalCard.id)
+    formData.append('price', listingPrice)
+
+    const result = await createListing(formData)
+
+    setListing(false)
+
+    if (result.error) {
+      setMessage({ type: 'error', text: result.error })
+    } else {
+      setMessage({ type: 'success', text: 'Card listed successfully!' })
+      setIsListed(true)
+      setShowListingForm(false)
+      setListingPrice('')
+      setTimeout(() => {
+        onClose()
+      }, 1500)
     }
   }
 
@@ -170,24 +233,85 @@ function CardDetailsModal({ card, locale, onClose, onCardUpdate }) {
             </p>
           )}
 
-          {/* Equip/Unequip Button */}
-          <div className="flex justify-center gap-3">
-            {modalCard.isEquipped ? (
+          {/* Action Buttons */}
+          <div className="flex flex-col items-center gap-3">
+            {/* Equip/Unequip Button */}
+            <div className="flex justify-center gap-3">
+              {modalCard.isEquipped ? (
+                <button
+                  onClick={handleUnequip}
+                  disabled={equipping}
+                  className="rounded-lg bg-red-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {equipping ? 'Unequipping...' : 'Unequip'}
+                </button>
+              ) : (
+                <button
+                  onClick={handleEquip}
+                  disabled={equipping}
+                  className="rounded-lg bg-blue-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {equipping ? 'Equipping...' : 'Equip'}
+                </button>
+              )}
+            </div>
+
+            {/* List on Marketplace */}
+            {!isListed && !showListingForm && (
               <button
-                onClick={handleUnequip}
-                disabled={equipping}
-                className="rounded-lg bg-red-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={() => setShowListingForm(true)}
+                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-2 text-sm font-semibold text-white transition-all hover:from-green-700 hover:to-emerald-700 hover:shadow-lg hover:shadow-green-500/20"
               >
-                {equipping ? 'Unequipping...' : 'Unequip'}
+                <Store className="w-4 h-4" />
+                List on Marketplace
               </button>
-            ) : (
-              <button
-                onClick={handleEquip}
-                disabled={equipping}
-                className="rounded-lg bg-blue-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {equipping ? 'Equipping...' : 'Equip'}
-              </button>
+            )}
+
+            {isListed && (
+              <div className="flex items-center gap-2 text-sm text-green-400">
+                <Store className="w-4 h-4" />
+                <span>Already listed on marketplace</span>
+              </div>
+            )}
+
+            {/* Listing Form */}
+            {showListingForm && (
+              <div className="w-full max-w-sm space-y-3 rounded-lg bg-zinc-800/50 border border-zinc-700 p-4">
+                <div className="flex items-center gap-2 text-sm text-zinc-300 mb-2">
+                  <Coins className="w-4 h-4 text-yellow-500" />
+                  <span className="font-medium">Set Your Price</span>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    value={listingPrice}
+                    onChange={(e) => setListingPrice(e.target.value)}
+                    placeholder="Enter price in coins..."
+                    min="1"
+                    className="flex-1 rounded-lg bg-zinc-900 border border-zinc-700 px-4 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleListOnMarketplace}
+                    disabled={listing}
+                    className="flex-1 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {listing ? 'Listing...' : 'Confirm'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowListingForm(false)
+                      setListingPrice('')
+                      setMessage(null)
+                    }}
+                    disabled={listing}
+                    className="rounded-lg bg-zinc-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             )}
           </div>
 

@@ -99,7 +99,7 @@ export default async function TradingPage({ params }) {
       initialCoins={profile.coins || 0}
       initialKeys={profile.keys || 0}
     >
-      <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950">
+      <div>
         <AppNavBar
           locale={locale}
           username={profile.username}
