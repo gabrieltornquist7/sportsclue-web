@@ -129,21 +129,21 @@ export default function CardCollectionsUI({ templates, mythicOwners, locale }) {
             onClick={() => setSelectedCard(null)}
           >
             <div
-              className="relative bg-zinc-900/95 backdrop-blur-xl rounded-2xl border border-zinc-800/50 shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+              className="relative bg-zinc-900/95 backdrop-blur-xl rounded-2xl border border-zinc-800/50 shadow-2xl w-full max-w-xl"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close Button */}
               <button
                 onClick={() => setSelectedCard(null)}
-                className="sticky top-4 right-4 float-right z-20 rounded-full bg-zinc-800/80 p-2 text-zinc-400 hover:text-white transition-all backdrop-blur-md border border-zinc-700/50 hover:border-zinc-600 shadow-lg hover:bg-zinc-700/80"
+                className="absolute -top-3 -right-3 z-20 rounded-full bg-zinc-800/90 p-2.5 text-zinc-400 hover:text-white transition-all backdrop-blur-md border border-zinc-700/50 hover:border-zinc-600 shadow-lg hover:bg-zinc-700/90"
               >
                 ✕
               </button>
 
               {/* Modal Content */}
-              <div className="p-8">
-                {/* Card Component - Smaller Size */}
-                <div className="flex justify-center mb-6">
+              <div className="p-6">
+                {/* Card Component - Scaled Down */}
+                <div className="flex justify-center mb-4" style={{ transform: 'scale(0.6)', transformOrigin: 'top center' }}>
                   <Card
                     card={selectedCard}
                     mode="collection"
