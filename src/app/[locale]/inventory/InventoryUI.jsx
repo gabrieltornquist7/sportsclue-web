@@ -165,93 +165,104 @@ function CardDetailsModal({ card, locale, onClose, onCardUpdate }) {
   }
 
   return (
-    <div 
-      className="fixed inset-0 bg-black/95"
-      style={{ 
-        position: 'fixed',
+    <div
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+      style={{
         zIndex: 99999
       }}
       onClick={onClose}
     >
-      <div 
-        className="relative"
-        style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          maxWidth: '90vw',
-          maxHeight: '90vh',
-          padding: '1.5rem'
-        }}
+      <div
+        className="relative bg-zinc-900/95 backdrop-blur-xl rounded-2xl border border-zinc-800/50 shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute -top-12 right-0 z-20 rounded-full bg-black/80 p-2 text-zinc-400 hover:text-white transition-colors backdrop-blur-sm border border-white/20"
+          className="sticky top-4 right-4 float-right z-20 rounded-full bg-zinc-800/80 p-2 text-zinc-400 hover:text-white transition-all backdrop-blur-md border border-zinc-700/50 hover:border-zinc-600 shadow-lg hover:bg-zinc-700/80"
         >
           ✕
         </button>
 
-        {/* Card Component */}
-        <Card
-          card={modalCard}
-          mode="vault"
-          size="large"
-        />
-
-        {/* Message Display for Equip/Unequip */}
-        {message && (
-          <div className={`mt-4 rounded-lg p-3 text-center text-sm ${
-            message.type === 'error'
-              ? 'bg-red-900/20 border border-red-800 text-red-400'
-              : 'bg-green-900/20 border border-green-800 text-green-400'
-          }`}>
-            {message.text}
+        {/* Modal Content */}
+        <div className="p-8">
+          {/* Card Component - Smaller Size */}
+          <div className="flex justify-center mb-6">
+            <Card
+              card={modalCard}
+              mode="vault"
+              size="normal"
+            />
           </div>
-        )}
 
-        {/* Additional Info Below Card */}
-        <div className="mt-6 text-center space-y-4">
-          {/* Buff Description */}
-          {modalCard.buffDescription && (
-            <div className="rounded-lg bg-blue-900/20 border border-blue-800 p-4 max-w-md mx-auto">
-              <p className="text-xs font-medium text-blue-300 uppercase tracking-wider mb-1">
-                Buff
-              </p>
-              <p className="text-sm text-blue-200">
-                {modalCard.buffDescription}
-              </p>
+          {/* Message Display for Equip/Unequip */}
+          {message && (
+            <div className={`mb-4 rounded-xl p-4 text-center text-sm font-medium ${
+              message.type === 'error'
+                ? 'bg-red-900/20 border border-red-800 text-red-400'
+                : 'bg-green-900/20 border border-green-800 text-green-400'
+            }`}>
+              {message.text}
             </div>
           )}
 
-          {/* Full Description */}
-          {modalCard.description && (
-            <p className="text-zinc-200 leading-relaxed text-sm max-w-md mx-auto">
-              {modalCard.description}
-            </p>
-          )}
+          {/* Card Info Section */}
+          <div className="space-y-4">
+            {/* Buff Description */}
+            {modalCard.buffDescription && (
+              <div className="rounded-xl bg-blue-900/20 border border-blue-800 p-4">
+                <p className="text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">
+                  Buff
+                </p>
+                <p className="text-sm text-blue-200 leading-relaxed">
+                  {modalCard.buffDescription}
+                </p>
+              </div>
+            )}
 
-          {/* Action Buttons */}
-          <div className="flex flex-col items-center gap-3">
+            {/* Full Description */}
+            {modalCard.description && (
+              <div className="rounded-xl bg-zinc-800/50 border border-zinc-700 p-4">
+                <p className="text-zinc-200 leading-relaxed text-sm">
+                  {modalCard.description}
+                </p>
+              </div>
+            )}
+
+            {/* Minted On Date */}
+            {modalCard.createdAt && (
+              <div className="rounded-xl bg-zinc-800/50 border border-zinc-700 p-4 text-center">
+                <p className="text-xs text-zinc-400 mb-1">Minted On</p>
+                <p className="text-sm font-medium text-zinc-300">
+                  {new Date(modalCard.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Action Buttons Section */}
+          <div className="mt-6 space-y-4">
             {/* Equip/Unequip Button */}
-            <div className="flex justify-center gap-3">
+            <div className="flex justify-center">
               {modalCard.isEquipped ? (
                 <button
                   onClick={handleUnequip}
                   disabled={equipping}
-                  className="rounded-lg bg-red-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full max-w-xs rounded-xl bg-gradient-to-r from-red-600 to-orange-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:from-red-700 hover:to-orange-700 disabled:cursor-not-allowed disabled:opacity-50 shadow-lg hover:shadow-red-500/20"
                 >
-                  {equipping ? 'Unequipping...' : 'Unequip'}
+                  {equipping ? 'Unequipping...' : 'Unequip Card'}
                 </button>
               ) : (
                 <button
                   onClick={handleEquip}
                   disabled={equipping}
-                  className="rounded-lg bg-blue-600 px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full max-w-xs rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:from-blue-700 hover:to-cyan-700 disabled:cursor-not-allowed disabled:opacity-50 shadow-lg hover:shadow-blue-500/20"
                 >
-                  {equipping ? 'Equipping...' : 'Equip'}
+                  {equipping ? 'Equipping...' : 'Equip Card'}
                 </button>
               )}
             </div>
@@ -260,44 +271,42 @@ function CardDetailsModal({ card, locale, onClose, onCardUpdate }) {
             {!isListed && !showListingForm && (
               <button
                 onClick={() => setShowListingForm(true)}
-                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-2 text-sm font-semibold text-white transition-all hover:from-green-700 hover:to-emerald-700 hover:shadow-lg hover:shadow-green-500/20"
+                className="w-full max-w-xs mx-auto flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:from-green-700 hover:to-emerald-700 hover:shadow-lg hover:shadow-green-500/20"
               >
-                <Store className="w-4 h-4" />
+                <Store className="w-5 h-5" />
                 List on Marketplace
               </button>
             )}
 
             {isListed && (
-              <div className="flex items-center gap-2 text-sm text-green-400">
-                <Store className="w-4 h-4" />
+              <div className="flex items-center justify-center gap-2 py-3 text-sm text-green-400">
+                <Store className="w-5 h-5" />
                 <span>Already listed on marketplace</span>
               </div>
             )}
 
             {/* Listing Form */}
             {showListingForm && (
-              <div className="w-full max-w-sm space-y-3 rounded-lg bg-zinc-800/50 border border-zinc-700 p-4">
-                <div className="flex items-center gap-2 text-sm text-zinc-300 mb-2">
-                  <Coins className="w-4 h-4 text-yellow-500" />
-                  <span className="font-medium">Set Your Price</span>
+              <div className="w-full space-y-4 rounded-xl bg-zinc-800/70 backdrop-blur-sm border border-zinc-700 p-6">
+                <div className="flex items-center gap-2 text-zinc-300 mb-3">
+                  <Coins className="w-5 h-5 text-yellow-500" />
+                  <span className="font-semibold">Set Your Price</span>
                 </div>
-                <div className="flex gap-2">
-                  <input
-                    type="number"
-                    value={listingPrice}
-                    onChange={(e) => setListingPrice(e.target.value)}
-                    placeholder="Enter price in coins..."
-                    min="1"
-                    className="flex-1 rounded-lg bg-zinc-900 border border-zinc-700 px-4 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-                <div className="flex gap-2">
+                <input
+                  type="number"
+                  value={listingPrice}
+                  onChange={(e) => setListingPrice(e.target.value)}
+                  placeholder="Enter price in coins..."
+                  min="1"
+                  className="w-full rounded-xl bg-zinc-900 border border-zinc-700 px-4 py-3 text-sm text-zinc-100 placeholder-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+                <div className="flex gap-3">
                   <button
                     onClick={handleListOnMarketplace}
                     disabled={listing}
-                    className="flex-1 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex-1 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:from-green-700 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 shadow-lg hover:shadow-green-500/20"
                   >
-                    {listing ? 'Listing...' : 'Confirm'}
+                    {listing ? 'Listing...' : 'Confirm Listing'}
                   </button>
                   <button
                     onClick={() => {
@@ -306,7 +315,7 @@ function CardDetailsModal({ card, locale, onClose, onCardUpdate }) {
                       setMessage(null)
                     }}
                     disabled={listing}
-                    className="rounded-lg bg-zinc-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-600 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="px-6 py-3 rounded-xl bg-zinc-700 text-sm font-semibold text-white transition-all hover:bg-zinc-600 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Cancel
                   </button>
@@ -314,20 +323,6 @@ function CardDetailsModal({ card, locale, onClose, onCardUpdate }) {
               </div>
             )}
           </div>
-
-          {/* Minted On Date */}
-          {modalCard.createdAt && (
-            <div className="text-xs text-zinc-400">
-              <p className="mb-1">Minted On</p>
-              <p className="text-zinc-300">
-                {new Date(modalCard.createdAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric'
-                })}
-              </p>
-            </div>
-          )}
         </div>
       </div>
     </div>
