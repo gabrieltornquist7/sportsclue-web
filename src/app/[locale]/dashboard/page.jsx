@@ -142,9 +142,10 @@ export default async function DashboardPage({ params }) {
       initialCoins={profile.coins || 0}
       initialKeys={profile.keys || 0}
     >
-      <AppNavBar 
+      <AppNavBar
         locale={locale}
         username={profile.username}
+        avatarUrl={profile.avatar_url}
       />
       <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 p-6">
         <main className="w-full max-w-xl">

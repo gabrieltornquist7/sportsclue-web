@@ -25,7 +25,7 @@ export default async function MarketplacePage({ params }) {
   // Fetch user profile for nav bar
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('username, coins, keys')
+    .select('username, coins, keys, avatar_url')
     .eq('id', user.id)
     .single()
 
@@ -68,6 +68,7 @@ export default async function MarketplacePage({ params }) {
         <AppNavBar
           locale={locale}
           username={profile.username}
+          avatarUrl={profile.avatar_url}
         />
         <MarketplaceUI
           listings={listings || []}

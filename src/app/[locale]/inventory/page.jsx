@@ -29,7 +29,7 @@ export default async function InventoryPage({ params }) {
   // ==========================================
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('username, coins, keys')
+    .select('username, coins, keys, avatar_url')
     .eq('id', user.id)
     .single()
 
@@ -42,13 +42,14 @@ export default async function InventoryPage({ params }) {
   // STEP 3: Render the Inventory UI
   // ==========================================
   return (
-    <CurrencyProviderWrapper 
+    <CurrencyProviderWrapper
       initialCoins={profile.coins || 0}
       initialKeys={profile.keys || 0}
     >
-      <AppNavBar 
+      <AppNavBar
         locale={locale}
         username={profile.username}
+        avatarUrl={profile.avatar_url}
       />
       <div className="flex min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 font-sans">
         <main className="w-full">

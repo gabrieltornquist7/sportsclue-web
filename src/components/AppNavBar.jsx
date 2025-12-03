@@ -22,7 +22,7 @@ import {
   ArrowRightLeft
 } from 'lucide-react'
 
-export default function AppNavBar({ locale, username }) {
+export default function AppNavBar({ locale, username, avatarUrl }) {
   const { coins, keys } = useCurrency()
   const [signingOut, setSigningOut] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
@@ -224,8 +224,18 @@ export default function AppNavBar({ locale, username }) {
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-3 rounded-lg px-4 py-2 text-sm font-medium text-zinc-300 hover:text-white hover:bg-zinc-800/50 transition-all duration-200"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                    <User className="w-4 h-4 text-white" />
+                  <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-blue-500/30">
+                    {avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        alt={username}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                        <User className="w-4 h-4 text-white" />
+                      </div>
+                    )}
                   </div>
                   <span className="max-w-[100px] truncate tracking-wide">{username}</span>
                   <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} />
@@ -395,8 +405,18 @@ export default function AppNavBar({ locale, username }) {
               <div className="p-4 border-t border-zinc-800/50 space-y-1">
                 <div className="px-4 py-3 rounded-lg bg-zinc-800/40 border border-zinc-700/30">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                      <User className="w-5 h-5 text-white" />
+                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-blue-500/30">
+                      {avatarUrl ? (
+                        <img
+                          src={avatarUrl}
+                          alt={username}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                          <User className="w-5 h-5 text-white" />
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white truncate">{username}</p>

@@ -29,7 +29,7 @@ export default async function PlayPage({ params }) {
   // ==========================================
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('username, coins, keys, favorite_sports')
+    .select('username, coins, keys, favorite_sports, avatar_url')
     .eq('id', user.id)
     .single()
 
@@ -58,9 +58,10 @@ export default async function PlayPage({ params }) {
       initialCoins={profile.coins || 0}
       initialKeys={profile.keys || 0}
     >
-      <AppNavBar 
+      <AppNavBar
         locale={locale}
         username={profile.username}
+        avatarUrl={profile.avatar_url}
       />
       <div className="flex min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 font-sans">
         <main className="w-full">

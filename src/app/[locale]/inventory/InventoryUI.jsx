@@ -9,7 +9,7 @@ import { openBox, unlockBox } from '@/app/store/actions'
 import { equipCard, unequipCard } from '@/app/auth/actions'
 import { createListing } from '@/app/marketplace/actions'
 import Card from '@/components/Card'
-import { Store, Coins } from 'lucide-react'
+import { Store, Coins, Package, FolderOpen, Sparkles } from 'lucide-react'
 
 // Card Details Modal Component - Has its own local state
 function CardDetailsModal({ card, locale, onClose, onCardUpdate }) {
@@ -566,46 +566,78 @@ export default function InventoryUI({ userId, locale, username }) {
 
   if (loading) {
     return (
-      <div className="flex min-h-[calc(100vh-64px)] items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-zinc-700 border-t-blue-500 mx-auto"></div>
-          <p className="text-zinc-400">Loading inventory...</p>
+          <p className="text-zinc-400 text-lg">Loading inventory...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-64px)] items-center justify-center px-6 py-12">
-        <div className="w-full max-w-4xl">
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-8 shadow-2xl backdrop-blur-sm">
-            {/* Tabs */}
-            <div className="mb-6 flex gap-4 border-b border-zinc-800">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-slate-900 px-6 py-12">
+      <div className="container mx-auto max-w-6xl">
+        {/* Premium Header */}
+        <div className="mb-12">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
+              <Package className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-500 bg-clip-text text-transparent mb-2">
+                Inventory
+              </h1>
+              <p className="text-zinc-400 text-lg">Manage your boxes and collection</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Card */}
+        <div className="rounded-2xl bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 overflow-hidden">
+          {/* Tabs */}
+          <div className="border-b border-zinc-800/50 bg-zinc-900/20">
+            <div className="flex gap-2 p-2">
               <button
                 onClick={() => setActiveTab('boxes')}
-                className={`pb-4 px-4 font-semibold transition-colors ${
+                className={`flex-1 px-6 py-4 rounded-xl font-semibold transition-all duration-200 ${
                   activeTab === 'boxes'
-                    ? 'border-b-2 border-blue-500 text-blue-400'
-                    : 'text-zinc-400 hover:text-zinc-200'
+                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/20'
+                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/30'
                 }`}
               >
-                My Boxes ({boxes.length})
+                <div className="flex items-center justify-center gap-2">
+                  <Package className="w-5 h-5" />
+                  <span>My Boxes</span>
+                  <span className="ml-1 px-2 py-0.5 rounded-full bg-white/10 text-xs">
+                    {boxes.length}
+                  </span>
+                </div>
               </button>
               <button
                 onClick={() => setActiveTab('collection')}
-                className={`pb-4 px-4 font-semibold transition-colors ${
+                className={`flex-1 px-6 py-4 rounded-xl font-semibold transition-all duration-200 ${
                   activeTab === 'collection'
-                    ? 'border-b-2 border-blue-500 text-blue-400'
-                    : 'text-zinc-400 hover:text-zinc-200'
+                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/20'
+                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/30'
                 }`}
               >
-                My Vault ({cards.length})
+                <div className="flex items-center justify-center gap-2">
+                  <FolderOpen className="w-5 h-5" />
+                  <span>My Vault</span>
+                  <span className="ml-1 px-2 py-0.5 rounded-full bg-white/10 text-xs">
+                    {cards.length}
+                  </span>
+                </div>
               </button>
             </div>
+          </div>
 
+          {/* Content Area with Padding */}
+          <div className="p-8">
             {/* Message Display */}
             {message && (
-              <div className={`mb-6 rounded-lg p-4 text-center ${
+              <div className={`mb-6 rounded-xl p-4 text-center font-medium ${
                 message.type === 'error'
                   ? 'bg-red-900/20 border border-red-800 text-red-400'
                   : 'bg-green-900/20 border border-green-800 text-green-400'
@@ -616,22 +648,26 @@ export default function InventoryUI({ userId, locale, username }) {
 
             {/* Opened Card Display */}
             {openedCard && (
-              <div className={`mb-6 rounded-xl border-2 p-6 text-center ${getRarityColor(openedCard.rarity)}`}>
-                <div className="mb-3 text-5xl">🎉</div>
-                <p className="mb-2 text-2xl font-bold">You minted:</p>
-                <p className="text-3xl font-bold">{openedCard.name}</p>
-                <p className="mt-2 text-lg uppercase">{openedCard.rarity}</p>
+              <div className={`mb-6 rounded-2xl border-2 p-8 text-center backdrop-blur-sm ${getRarityColor(openedCard.rarity)}`}>
+                <div className="mb-4">
+                  <Sparkles className="w-16 h-16 mx-auto text-yellow-400 animate-pulse" />
+                </div>
+                <p className="mb-3 text-3xl font-bold text-zinc-50">You minted:</p>
+                <p className={`text-4xl font-bold mb-2 ${getRarityTextColor(openedCard.rarity)}`}>
+                  {openedCard.name}
+                </p>
+                <p className="mt-2 text-xl font-semibold uppercase tracking-wider">{openedCard.rarity}</p>
                 {/* Serial Number - Most Important Visual */}
-                <div className="mt-4 rounded-lg bg-zinc-900/50 px-4 py-2">
-                  <p className="text-sm text-zinc-400">Serial Number</p>
-                  <p className="text-2xl font-bold text-zinc-50">
+                <div className="mt-6 rounded-xl bg-zinc-900/70 backdrop-blur-sm px-6 py-4">
+                  <p className="text-sm text-zinc-400 mb-1">Serial Number</p>
+                  <p className="text-3xl font-bold text-zinc-50">
                     #{openedCard.serialNumber}
                     {openedCard.maxMints !== null ? ` of ${openedCard.maxMints}` : ' of ∞'}
                   </p>
                 </div>
                 <button
                   onClick={() => setOpenedCard(null)}
-                  className="mt-4 rounded-lg bg-blue-600 px-6 py-2 text-white hover:bg-blue-700"
+                  className="mt-6 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 text-white font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-blue-500/20"
                 >
                   Close
                 </button>
@@ -642,50 +678,62 @@ export default function InventoryUI({ userId, locale, username }) {
             {activeTab === 'boxes' && (
               <div>
                 {boxes.length === 0 ? (
-                  <div className="py-12 text-center text-zinc-400">
-                    <div className="mb-4 text-6xl">📦</div>
-                    <p>No boxes yet. Visit the store to buy some!</p>
+                  <div className="py-20 text-center">
+                    <div className="w-24 h-24 rounded-full bg-zinc-800 flex items-center justify-center mx-auto mb-6">
+                      <Package className="w-12 h-12 text-zinc-600" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-zinc-300 mb-2">No Boxes Yet</h3>
+                    <p className="text-zinc-500 text-lg mb-6">Visit the store to buy some boxes!</p>
+                    <a
+                      href={`/${locale}/store`}
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg hover:shadow-purple-500/20"
+                    >
+                      <Store className="w-5 h-5" />
+                      Visit Store
+                    </a>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {boxes.map((box) => {
                       const isLocked = box.box_type === 'legendary_box'
                       return (
                         <div
                           key={box.id}
-                          className={`rounded-xl border-2 p-6 text-center ${
+                          className={`group rounded-2xl border-2 p-8 text-center backdrop-blur-sm transition-all duration-300 hover:scale-105 ${
                             isLocked
-                              ? 'border-yellow-700 bg-yellow-900/20'
-                              : 'border-zinc-700 bg-zinc-800/50'
+                              ? 'border-yellow-500/50 bg-gradient-to-br from-yellow-900/20 to-orange-900/20 hover:border-yellow-500/80 hover:shadow-lg hover:shadow-yellow-500/20'
+                              : 'border-zinc-700/50 bg-zinc-800/30 hover:border-zinc-600/80 hover:shadow-lg hover:shadow-blue-500/10'
                           }`}
                         >
-                          <div className="mb-4 text-5xl">
+                          <div className="mb-6 text-6xl transition-transform duration-300 group-hover:scale-110">
                             {isLocked ? '🔒' : '📦'}
                           </div>
-                          <h3 className="mb-2 font-bold text-zinc-50 capitalize">
+                          <h3 className="mb-2 text-xl font-bold text-zinc-50 capitalize">
                             {box.box_type.replace('_', ' ')}
                           </h3>
                           {isLocked && (
-                            <p className="mb-4 text-sm text-yellow-400">Locked</p>
+                            <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30">
+                              <span className="text-sm font-medium text-yellow-400">Locked</span>
+                            </div>
                           )}
                           <button
-                            onClick={() => 
-                              isLocked 
+                            onClick={() =>
+                              isLocked
                                 ? handleUnlockBox(box.id)
                                 : handleOpenBox(box.id, box.box_type)
                             }
                             disabled={openingBox === box.id}
-                            className={`w-full rounded-lg px-4 py-2 font-semibold text-white transition-all disabled:opacity-50 ${
+                            className={`w-full mt-4 rounded-xl px-6 py-3 font-semibold text-white transition-all disabled:opacity-50 shadow-lg ${
                               isLocked
-                                ? 'bg-yellow-600 hover:bg-yellow-700'
-                                : 'bg-blue-600 hover:bg-blue-700'
+                                ? 'bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 hover:shadow-yellow-500/20'
+                                : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 hover:shadow-blue-500/20'
                             }`}
                           >
                             {openingBox === box.id
                               ? 'Opening...'
                               : isLocked
                               ? 'Unlock (1 Key)'
-                              : 'Open'}
+                              : 'Open Box'}
                           </button>
                         </div>
                       )
@@ -699,12 +747,15 @@ export default function InventoryUI({ userId, locale, username }) {
             {activeTab === 'collection' && (
               <div>
                 {cards.length === 0 ? (
-                  <div className="py-12 text-center text-zinc-400">
-                    <div className="mb-4 text-6xl">🃏</div>
-                    <p>Your vault is empty. Open some boxes to start collecting!</p>
+                  <div className="py-20 text-center">
+                    <div className="w-24 h-24 rounded-full bg-zinc-800 flex items-center justify-center mx-auto mb-6">
+                      <FolderOpen className="w-12 h-12 text-zinc-600" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-zinc-300 mb-2">Vault Empty</h3>
+                    <p className="text-zinc-500 text-lg">Open some boxes to start collecting!</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {cards.map((card) => (
                       <Card
                         key={card.id}
@@ -722,31 +773,33 @@ export default function InventoryUI({ userId, locale, username }) {
                 )}
               </div>
             )}
-
-            {/* Card Details Modal - Larger Card Component */}
-            {selectedCard && (
-              <CardDetailsModal
-                card={selectedCard}
-                locale={locale}
-                onClose={() => {
-                  setSelectedCard(null)
-                  setMessage(null)
-                }}
-                onCardUpdate={(updatedCard) => {
-                  // Update parent's card list with the new card object
-                  setCards(prevCards => 
-                    prevCards.map(card => 
-                      card.id === updatedCard.id ? updatedCard : card
-                    )
-                  )
-                  // Update selectedCard to reflect new status
-                  setSelectedCard(updatedCard)
-                }}
-              />
-            )}
           </div>
+
         </div>
+
+        {/* Card Details Modal - Larger Card Component */}
+        {selectedCard && (
+          <CardDetailsModal
+            card={selectedCard}
+            locale={locale}
+            onClose={() => {
+              setSelectedCard(null)
+              setMessage(null)
+            }}
+            onCardUpdate={(updatedCard) => {
+              // Update parent's card list with the new card object
+              setCards(prevCards =>
+                prevCards.map(card =>
+                  card.id === updatedCard.id ? updatedCard : card
+                )
+              )
+              // Update selectedCard to reflect new status
+              setSelectedCard(updatedCard)
+            }}
+          />
+        )}
       </div>
+    </div>
   )
 }
 

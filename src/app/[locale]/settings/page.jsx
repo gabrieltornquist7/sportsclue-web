@@ -239,6 +239,7 @@ function SettingsContent() {
           <AppNavBar
             locale={params.locale}
             username={username}
+            avatarUrl={avatarUrl}
           />
           <div className="flex min-h-[calc(100vh-64px)] items-center justify-center bg-zinc-950 p-6 font-sans">
             <div className="w-full max-w-2xl rounded-lg border border-zinc-800 bg-zinc-900 p-8 shadow-xl">
