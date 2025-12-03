@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { logActivity } from '@/app/leaderboard/actions'
 
 /**
  * Create a marketplace listing
@@ -22,10 +23,10 @@ export async function createListing(formData) {
       return { error: 'Not authenticated' }
     }
 
-    // Verify user owns the card
+    // Verify user owns the card and get card details
     const { data: card, error: cardError } = await supabase
       .from('minted_cards')
-      .select('id, user_id')
+      .select('id, user_id, card_templates(name, rarity)')
       .eq('id', cardId)
       .eq('user_id', user.id)
       .single()
@@ -61,6 +62,18 @@ export async function createListing(formData) {
       console.error('Error creating listing:', error)
       return { error: 'Failed to create listing' }
     }
+
+    // Log activity
+    const template = Array.isArray(card.card_templates) ? card.card_templates[0] : card.card_templates
+    await logActivity({
+      userId: user.id,
+      activityType: 'card_listed',
+      metadata: {
+        card_name: template?.name || 'Unknown Card',
+        rarity: template?.rarity || 'common',
+        price: price
+      }
+    })
 
     revalidatePath('/marketplace')
     revalidatePath('/inventory')
@@ -119,6 +132,25 @@ export async function purchaseListing(listingId) {
       return { error: 'Not authenticated' }
     }
 
+    // Get listing details before purchase for activity logging
+    const { data: listing, error: listingError } = await supabase
+      .from('marketplace_listings')
+      .select(`
+        id,
+        price,
+        seller_id,
+        card:minted_cards!card_id(
+          id,
+          template:card_templates(name, rarity)
+        )
+      `)
+      .eq('id', listingId)
+      .single()
+
+    if (listingError || !listing) {
+      return { error: 'Listing not found' }
+    }
+
     // Use atomic RPC function
     const { data, error } = await supabase
       .rpc('purchase_marketplace_listing', {
@@ -135,6 +167,33 @@ export async function purchaseListing(listingId) {
     if (!result.success) {
       return { error: result.error_message }
     }
+
+    // Log activity for buyer (card purchased)
+    const card = Array.isArray(listing.card) ? listing.card[0] : listing.card
+    const template = card?.template
+      ? (Array.isArray(card.template) ? card.template[0] : card.template)
+      : null
+
+    await logActivity({
+      userId: user.id,
+      activityType: 'card_purchased',
+      metadata: {
+        card_name: template?.name || 'Unknown Card',
+        rarity: template?.rarity || 'common',
+        price: listing.price
+      }
+    })
+
+    // Log activity for seller (card sold)
+    await logActivity({
+      userId: listing.seller_id,
+      activityType: 'card_sold',
+      metadata: {
+        card_name: template?.name || 'Unknown Card',
+        rarity: template?.rarity || 'common',
+        price: listing.price
+      }
+    })
 
     revalidatePath('/marketplace')
     revalidatePath('/inventory')

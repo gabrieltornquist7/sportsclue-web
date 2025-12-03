@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { logActivity } from '@/app/leaderboard/actions'
 
 /**
  * Create a trade offer
@@ -101,6 +102,29 @@ export async function respondToTrade(tradeId, accept) {
       return { error: 'Not authenticated' }
     }
 
+    // Get trade details before executing for activity logging
+    const { data: trade, error: tradeError } = await supabase
+      .from('trade_offers')
+      .select(`
+        id,
+        initiator_id,
+        recipient_id,
+        initiator_card:minted_cards!initiator_card_id(
+          id,
+          template:card_templates(name, rarity)
+        ),
+        recipient_card:minted_cards!recipient_card_id(
+          id,
+          template:card_templates(name, rarity)
+        )
+      `)
+      .eq('id', tradeId)
+      .single()
+
+    if (tradeError || !trade) {
+      return { error: 'Trade not found' }
+    }
+
     // Use atomic RPC function
     const { data, error } = await supabase
       .rpc('execute_trade', {
@@ -117,6 +141,29 @@ export async function respondToTrade(tradeId, accept) {
     const result = data[0]
     if (!result.success) {
       return { error: result.error_message }
+    }
+
+    // Log activity if trade was completed
+    if (result.trade_completed) {
+      // Log for both parties
+      await Promise.all([
+        logActivity({
+          userId: trade.initiator_id,
+          activityType: 'trade_completed',
+          metadata: {
+            trade_id: tradeId,
+            partner_id: trade.recipient_id
+          }
+        }),
+        logActivity({
+          userId: trade.recipient_id,
+          activityType: 'trade_completed',
+          metadata: {
+            trade_id: tradeId,
+            partner_id: trade.initiator_id
+          }
+        })
+      ])
     }
 
     revalidatePath('/trading')

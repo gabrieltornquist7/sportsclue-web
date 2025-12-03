@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { logActivity } from '@/app/leaderboard/actions'
 
 /**
  * Buys an item from the store
@@ -360,6 +361,18 @@ export async function openBox(boxId, boxType, userId) {
       .delete()
       .eq('id', boxId)
 
+    // Log activity
+    await logActivity({
+      userId: userId,
+      activityType: 'card_obtained',
+      metadata: {
+        card_name: mintResult.card.name,
+        rarity: mintResult.card.rarity,
+        source: 'box_opening',
+        box_type: boxType
+      }
+    })
+
     return {
       success: true,
       card: mintResult.card
@@ -460,6 +473,18 @@ export async function unlockBox(boxId, userId) {
       .from('user_box_inventory')
       .delete()
       .eq('id', boxId)
+
+    // Log activity
+    await logActivity({
+      userId: userId,
+      activityType: 'card_obtained',
+      metadata: {
+        card_name: mintResult.card.name,
+        rarity: mintResult.card.rarity,
+        source: 'legendary_box',
+        box_type: 'legendary_box'
+      }
+    })
 
     return {
       success: true,
