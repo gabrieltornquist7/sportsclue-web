@@ -166,163 +166,131 @@ function CardDetailsModal({ card, locale, onClose, onCardUpdate }) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
-      style={{
-        zIndex: 99999
-      }}
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
       onClick={onClose}
     >
       <div
-        className="relative bg-zinc-900/95 backdrop-blur-xl rounded-2xl border border-zinc-800/50 shadow-2xl w-full max-w-xl"
+        className="bg-gray-900/90 rounded-2xl p-6 max-w-md w-full mx-4 flex flex-col items-center gap-4"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute -top-3 -right-3 z-20 rounded-full bg-zinc-800/90 p-2.5 text-zinc-400 hover:text-white transition-all backdrop-blur-md border border-zinc-700/50 hover:border-zinc-600 shadow-lg hover:bg-zinc-700/90"
-        >
-          ✕
-        </button>
+        {/* Card wrapper - constrain the card size */}
+        <div className="w-64 h-auto">
+          <Card
+            card={modalCard}
+            mode="vault"
+            size="normal"
+          />
+        </div>
 
-        {/* Modal Content */}
-        <div className="p-6">
-          {/* Card Component - Scaled Down */}
-          <div className="flex justify-center mb-4" style={{ transform: 'scale(0.6)', transformOrigin: 'top center' }}>
-            <Card
-              card={modalCard}
-              mode="vault"
-              size="normal"
-            />
+        {/* Message Display */}
+        {message && (
+          <div className={`w-full rounded-xl p-3 text-center text-sm font-medium ${
+            message.type === 'error'
+              ? 'bg-red-900/20 border border-red-800 text-red-400'
+              : 'bg-green-900/20 border border-green-800 text-green-400'
+          }`}>
+            {message.text}
           </div>
+        )}
 
-          {/* Message Display for Equip/Unequip */}
-          {message && (
-            <div className={`mb-4 rounded-xl p-4 text-center text-sm font-medium ${
-              message.type === 'error'
-                ? 'bg-red-900/20 border border-red-800 text-red-400'
-                : 'bg-green-900/20 border border-green-800 text-green-400'
-            }`}>
-              {message.text}
+        {/* Card Info */}
+        {modalCard.buffDescription && (
+          <div className="w-full rounded-xl bg-blue-900/20 border border-blue-800 p-3">
+            <p className="text-xs font-semibold text-blue-300 uppercase tracking-wider mb-1">Buff</p>
+            <p className="text-xs text-blue-200">{modalCard.buffDescription}</p>
+          </div>
+        )}
+
+        {modalCard.description && (
+          <div className="w-full rounded-xl bg-zinc-800/50 border border-zinc-700 p-3">
+            <p className="text-xs text-zinc-200">{modalCard.description}</p>
+          </div>
+        )}
+
+        {/* Action buttons - always visible below card */}
+        <div className="flex flex-col gap-3 w-full">
+          {/* Equip/Unequip Button */}
+          {modalCard.isEquipped ? (
+            <button
+              onClick={handleUnequip}
+              disabled={equipping}
+              className="w-full rounded-xl bg-gradient-to-r from-red-600 to-orange-600 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:from-red-700 hover:to-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {equipping ? 'Unequipping...' : 'Unequip Card'}
+            </button>
+          ) : (
+            <button
+              onClick={handleEquip}
+              disabled={equipping}
+              className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:from-blue-700 hover:to-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {equipping ? 'Equipping...' : 'Equip Card'}
+            </button>
+          )}
+
+          {/* List on Marketplace */}
+          {!isListed && !showListingForm && (
+            <button
+              onClick={() => setShowListingForm(true)}
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:from-green-700 hover:to-emerald-700"
+            >
+              <Store className="w-4 h-4" />
+              List on Marketplace
+            </button>
+          )}
+
+          {isListed && (
+            <div className="flex items-center justify-center gap-2 py-2 text-sm text-green-400">
+              <Store className="w-4 h-4" />
+              <span>Already listed on marketplace</span>
             </div>
           )}
 
-          {/* Card Info Section */}
-          <div className="space-y-4">
-            {/* Buff Description */}
-            {modalCard.buffDescription && (
-              <div className="rounded-xl bg-blue-900/20 border border-blue-800 p-4">
-                <p className="text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">
-                  Buff
-                </p>
-                <p className="text-sm text-blue-200 leading-relaxed">
-                  {modalCard.buffDescription}
-                </p>
+          {/* Listing Form */}
+          {showListingForm && (
+            <div className="w-full space-y-3 rounded-xl bg-zinc-800/70 border border-zinc-700 p-4">
+              <div className="flex items-center gap-2 text-zinc-300">
+                <Coins className="w-4 h-4 text-yellow-500" />
+                <span className="text-sm font-semibold">Set Your Price</span>
               </div>
-            )}
-
-            {/* Full Description */}
-            {modalCard.description && (
-              <div className="rounded-xl bg-zinc-800/50 border border-zinc-700 p-4">
-                <p className="text-zinc-200 leading-relaxed text-sm">
-                  {modalCard.description}
-                </p>
-              </div>
-            )}
-
-            {/* Minted On Date */}
-            {modalCard.createdAt && (
-              <div className="rounded-xl bg-zinc-800/50 border border-zinc-700 p-4 text-center">
-                <p className="text-xs text-zinc-400 mb-1">Minted On</p>
-                <p className="text-sm font-medium text-zinc-300">
-                  {new Date(modalCard.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Action Buttons Section */}
-          <div className="mt-6 space-y-4">
-            {/* Equip/Unequip Button */}
-            <div className="flex justify-center">
-              {modalCard.isEquipped ? (
+              <input
+                type="number"
+                value={listingPrice}
+                onChange={(e) => setListingPrice(e.target.value)}
+                placeholder="Enter price in coins..."
+                min="1"
+                className="w-full rounded-xl bg-zinc-900 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              />
+              <div className="flex gap-2">
                 <button
-                  onClick={handleUnequip}
-                  disabled={equipping}
-                  className="w-full max-w-xs rounded-xl bg-gradient-to-r from-red-600 to-orange-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:from-red-700 hover:to-orange-700 disabled:cursor-not-allowed disabled:opacity-50 shadow-lg hover:shadow-red-500/20"
+                  onClick={handleListOnMarketplace}
+                  disabled={listing}
+                  className="flex-1 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:from-green-700 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {equipping ? 'Unequipping...' : 'Unequip Card'}
+                  {listing ? 'Listing...' : 'Confirm'}
                 </button>
-              ) : (
                 <button
-                  onClick={handleEquip}
-                  disabled={equipping}
-                  className="w-full max-w-xs rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:from-blue-700 hover:to-cyan-700 disabled:cursor-not-allowed disabled:opacity-50 shadow-lg hover:shadow-blue-500/20"
+                  onClick={() => {
+                    setShowListingForm(false)
+                    setListingPrice('')
+                    setMessage(null)
+                  }}
+                  disabled={listing}
+                  className="px-4 py-2.5 rounded-xl bg-zinc-700 text-sm font-semibold text-white transition-all hover:bg-zinc-600 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {equipping ? 'Equipping...' : 'Equip Card'}
+                  Cancel
                 </button>
-              )}
+              </div>
             </div>
+          )}
 
-            {/* List on Marketplace */}
-            {!isListed && !showListingForm && (
-              <button
-                onClick={() => setShowListingForm(true)}
-                className="w-full max-w-xs mx-auto flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:from-green-700 hover:to-emerald-700 hover:shadow-lg hover:shadow-green-500/20"
-              >
-                <Store className="w-5 h-5" />
-                List on Marketplace
-              </button>
-            )}
-
-            {isListed && (
-              <div className="flex items-center justify-center gap-2 py-3 text-sm text-green-400">
-                <Store className="w-5 h-5" />
-                <span>Already listed on marketplace</span>
-              </div>
-            )}
-
-            {/* Listing Form */}
-            {showListingForm && (
-              <div className="w-full space-y-4 rounded-xl bg-zinc-800/70 backdrop-blur-sm border border-zinc-700 p-6">
-                <div className="flex items-center gap-2 text-zinc-300 mb-3">
-                  <Coins className="w-5 h-5 text-yellow-500" />
-                  <span className="font-semibold">Set Your Price</span>
-                </div>
-                <input
-                  type="number"
-                  value={listingPrice}
-                  onChange={(e) => setListingPrice(e.target.value)}
-                  placeholder="Enter price in coins..."
-                  min="1"
-                  className="w-full rounded-xl bg-zinc-900 border border-zinc-700 px-4 py-3 text-sm text-zinc-100 placeholder-zinc-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                />
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleListOnMarketplace}
-                    disabled={listing}
-                    className="flex-1 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:from-green-700 hover:to-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 shadow-lg hover:shadow-green-500/20"
-                  >
-                    {listing ? 'Listing...' : 'Confirm Listing'}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowListingForm(false)
-                      setListingPrice('')
-                      setMessage(null)
-                    }}
-                    disabled={listing}
-                    className="px-6 py-3 rounded-xl bg-zinc-700 text-sm font-semibold text-white transition-all hover:bg-zinc-600 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="w-full rounded-xl bg-zinc-800 px-4 py-2.5 text-sm font-semibold text-zinc-300 transition-all hover:bg-zinc-700 hover:text-white"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>

@@ -122,91 +122,78 @@ export default function CardCollectionsUI({ templates, mythicOwners, locale }) {
         {/* Card Details Modal */}
         {selectedCard && (
           <div
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
-            style={{
-              zIndex: 99999
-            }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
             onClick={() => setSelectedCard(null)}
           >
             <div
-              className="relative bg-zinc-900/95 backdrop-blur-xl rounded-2xl border border-zinc-800/50 shadow-2xl w-full max-w-xl"
+              className="bg-gray-900/90 rounded-2xl p-6 max-w-md w-full mx-4 flex flex-col items-center gap-4"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close Button */}
+              {/* Card wrapper - constrain the card size */}
+              <div className="w-64 h-auto">
+                <Card
+                  card={selectedCard}
+                  mode="collection"
+                  size="normal"
+                />
+              </div>
+
+              {/* Card Info */}
+              {selectedCard.description && (
+                <div className="w-full rounded-xl bg-zinc-800/50 border border-zinc-700 p-3">
+                  <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Description</p>
+                  <p className="text-xs text-zinc-200">{selectedCard.description}</p>
+                </div>
+              )}
+
+              {/* Mythic Owner Info */}
+              {selectedCard.rarity === 'mythic' && (
+                <div className="w-full rounded-xl bg-gradient-to-br from-yellow-900/30 to-orange-900/30 border border-yellow-500/30 p-4 text-center">
+                  {mythicOwners[selectedCard.id] ? (
+                    <div>
+                      <p className="text-xs text-yellow-400 mb-1 uppercase tracking-wider font-semibold">Current Owner</p>
+                      <p className="text-lg font-bold text-yellow-300">
+                        @{mythicOwners[selectedCard.id]}
+                      </p>
+                      <p className="text-xs text-yellow-400/70 mt-1">This is a 1-of-1 card</p>
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-sm text-yellow-400 font-semibold mb-1">Not Yet Minted</p>
+                      <p className="text-xs text-yellow-400/70 italic">
+                        Be the first to own this mythic card!
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Remaining Info for Capped Cards */}
+              {selectedCard.rarity !== 'common' && selectedCard.rarity !== 'mythic' && selectedCard.max_mints && (
+                <div className="w-full rounded-xl bg-blue-900/20 border border-blue-500/30 p-3 text-center">
+                  <p className="text-xs text-blue-400 mb-1 uppercase tracking-wider font-semibold">Availability</p>
+                  <p className="text-sm text-blue-300">
+                    <span className="font-bold text-lg">{selectedCard.max_mints - (selectedCard.current_mints || 0)}</span>
+                    <span className="text-xs ml-2">of {selectedCard.max_mints} remaining</span>
+                  </p>
+                </div>
+              )}
+
+              {/* Series Info */}
+              {selectedCard.series_name && (
+                <div className="w-full rounded-xl bg-zinc-800/50 border border-zinc-700 p-3 text-center">
+                  <p className="text-xs text-zinc-400 mb-1 uppercase tracking-wider">Series</p>
+                  <p className="text-sm font-medium text-zinc-200">{selectedCard.series_name}</p>
+                </div>
+              )}
+
+              {/* Close Button - always visible below card */}
               <button
                 onClick={() => setSelectedCard(null)}
-                className="absolute -top-3 -right-3 z-20 rounded-full bg-zinc-800/90 p-2.5 text-zinc-400 hover:text-white transition-all backdrop-blur-md border border-zinc-700/50 hover:border-zinc-600 shadow-lg hover:bg-zinc-700/90"
+                className="w-full rounded-xl bg-zinc-800 px-4 py-2.5 text-sm font-semibold text-zinc-300 transition-all hover:bg-zinc-700 hover:text-white"
               >
-                ✕
+                Close
               </button>
-
-              {/* Modal Content */}
-              <div className="p-6">
-                {/* Card Component - Scaled Down */}
-                <div className="flex justify-center mb-4" style={{ transform: 'scale(0.6)', transformOrigin: 'top center' }}>
-                  <Card
-                    card={selectedCard}
-                    mode="collection"
-                    size="normal"
-                  />
-                </div>
-
-                {/* Card Info Section */}
-                <div className="space-y-4">
-                  {/* Description */}
-                  {selectedCard.description && (
-                    <div className="rounded-xl bg-zinc-800/50 border border-zinc-700 p-4">
-                      <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
-                        Description
-                      </p>
-                      <p className="text-zinc-200 leading-relaxed text-sm">
-                        {selectedCard.description}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Mythic Owner Info */}
-                  {selectedCard.rarity === 'mythic' && (
-                    <div className="rounded-xl bg-gradient-to-br from-yellow-900/30 to-orange-900/30 border border-yellow-500/30 p-6 text-center">
-                      {mythicOwners[selectedCard.id] ? (
-                        <div>
-                          <p className="text-xs text-yellow-400 mb-2 uppercase tracking-wider font-semibold">Current Owner</p>
-                          <p className="text-xl font-bold text-yellow-300">
-                            @{mythicOwners[selectedCard.id]}
-                          </p>
-                          <p className="text-xs text-yellow-400/70 mt-2">This is a 1-of-1 card</p>
-                        </div>
-                      ) : (
-                        <div>
-                          <p className="text-sm text-yellow-400 font-semibold mb-1">Not Yet Minted</p>
-                          <p className="text-xs text-yellow-400/70 italic">
-                            Be the first to own this mythic card!
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Remaining Info for Capped Cards */}
-                  {selectedCard.rarity !== 'common' && selectedCard.rarity !== 'mythic' && selectedCard.max_mints && (
-                    <div className="rounded-xl bg-blue-900/20 border border-blue-500/30 p-4 text-center">
-                      <p className="text-xs text-blue-400 mb-2 uppercase tracking-wider font-semibold">Availability</p>
-                      <p className="text-lg text-blue-300">
-                        <span className="font-bold text-2xl">{selectedCard.max_mints - (selectedCard.current_mints || 0)}</span>
-                        <span className="text-sm ml-2">of {selectedCard.max_mints} remaining</span>
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Series Info */}
-                  {selectedCard.series_name && (
-                    <div className="rounded-xl bg-zinc-800/50 border border-zinc-700 p-4 text-center">
-                      <p className="text-xs text-zinc-400 mb-1 uppercase tracking-wider">Series</p>
-                      <p className="text-sm font-medium text-zinc-200">{selectedCard.series_name}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
           </div>
         )}
