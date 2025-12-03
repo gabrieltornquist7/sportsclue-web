@@ -259,9 +259,6 @@ export async function sendFriendRequest(targetUserId) {
       return { error: 'Failed to send friend request' }
     }
 
-    // Log activity
-    await logActivity(user.id, 'friend_added', { target_user_id: targetUserId })
-
     revalidatePath('/leaderboard')
     return { success: true }
   } catch (error) {
@@ -282,13 +279,23 @@ export async function acceptFriendRequest(friendshipId) {
       return { error: 'Not authenticated' }
     }
 
+    // Get friendship details before updating
+    const { data: friendship, error: fetchError } = await supabase
+      .from('friendships')
+      .select('user_id_1, user_id_2')
+      .eq('id', friendshipId)
+      .single()
+
+    if (fetchError || !friendship) {
+      return { error: 'Friendship not found' }
+    }
+
     // Update friendship status
     const { error } = await supabase
       .from('friendships')
       .update({
         status: 'accepted',
-        action_user_id: user.id,
-        updated_at: new Date().toISOString()
+        action_user_id: user.id
       })
       .eq('id', friendshipId)
       .eq('user_id_2', user.id) // Ensure user is the recipient
@@ -298,6 +305,27 @@ export async function acceptFriendRequest(friendshipId) {
       console.error('Error accepting friend request:', error)
       return { error: 'Failed to accept friend request' }
     }
+
+    // Get both users' usernames for activity logging
+    const otherUserId = friendship.user_id_1
+    const [otherUserResult, currentUserResult] = await Promise.all([
+      supabase.from('profiles').select('username').eq('id', otherUserId).single(),
+      supabase.from('profiles').select('username').eq('id', user.id).single()
+    ])
+
+    // Log activity for both users
+    await Promise.all([
+      logActivity({
+        userId: user.id,
+        activityType: 'friend_added',
+        metadata: { friend_username: otherUserResult.data?.username || 'Unknown' }
+      }),
+      logActivity({
+        userId: otherUserId,
+        activityType: 'friend_added',
+        metadata: { friend_username: currentUserResult.data?.username || 'Unknown' }
+      })
+    ])
 
     revalidatePath('/leaderboard')
     return { success: true }
@@ -533,8 +561,12 @@ export async function getActivityFeed(filter = 'all', limit = 100) {
 
 /**
  * Log activity to feed
+ * @param {Object} params - Activity parameters
+ * @param {string} params.userId - User ID
+ * @param {string} params.activityType - Type of activity
+ * @param {Object} params.metadata - Activity metadata
  */
-export async function logActivity(userId, activityType, metadata = {}) {
+export async function logActivity({ userId, activityType, metadata = {} }) {
   try {
     const supabase = await createClient()
 
