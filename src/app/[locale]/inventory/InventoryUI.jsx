@@ -166,15 +166,15 @@ function CardDetailsModal({ card, locale, onClose, onCardUpdate }) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-8"
       onClick={onClose}
     >
       <div
-        className="bg-gray-900/90 rounded-2xl p-6 max-w-md w-full mx-4 flex flex-col items-center gap-4"
+        className="bg-gray-900/90 rounded-2xl p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto flex flex-col items-center gap-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Card wrapper - constrain the card size */}
-        <div className="w-64 h-auto">
+        <div className="w-56 h-auto">
           <Card
             card={modalCard}
             mode="vault"
