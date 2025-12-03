@@ -173,23 +173,23 @@ export default function AppNavBar({ locale, username }) {
                   )}
                 </div>
 
-                {/* Hall of Fame Link */}
+                {/* Leaderboard Link */}
                 <a
-                  href={`/${locale}/hall-of-fame`}
+                  href={`/${locale}/leaderboard`}
                   className={`group relative px-4 py-2 text-sm font-medium transition-all duration-200 ${
-                    isActive('/hall-of-fame')
+                    isActive('/leaderboard')
                       ? 'text-blue-400'
                       : 'text-zinc-300 hover:text-white'
                   }`}
                 >
                   <div className="flex items-center gap-2">
                     <Trophy className="w-4 h-4" />
-                    <span className="tracking-wide">Hall of Fame</span>
+                    <span className="tracking-wide">Leaderboard</span>
                   </div>
-                  {isActive('/hall-of-fame') && (
+                  {isActive('/leaderboard') && (
                     <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 shadow-lg shadow-blue-500/50" />
                   )}
-                  {!isActive('/hall-of-fame') && (
+                  {!isActive('/leaderboard') && (
                     <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                   )}
                 </a>
@@ -379,15 +379,15 @@ export default function AppNavBar({ locale, username }) {
                 </div>
 
                 <a
-                  href={`/${locale}/hall-of-fame`}
+                  href={`/${locale}/leaderboard`}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    isActive('/hall-of-fame')
+                    isActive('/leaderboard')
                       ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
                       : 'text-zinc-300 hover:text-white hover:bg-zinc-800/50'
                   }`}
                 >
                   <Trophy className="w-5 h-5" />
-                  <span>Hall of Fame</span>
+                  <span>Leaderboard</span>
                 </a>
               </div>
 
