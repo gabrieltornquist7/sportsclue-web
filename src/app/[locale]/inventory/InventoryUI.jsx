@@ -9,6 +9,7 @@ import { openBox, unlockBox } from '@/app/store/actions'
 import { equipCard, unequipCard } from '@/app/auth/actions'
 import { createListing } from '@/app/marketplace/actions'
 import Card from '@/components/Card'
+import BoxOpeningAnimation from '@/components/BoxOpeningAnimation'
 import { Store, Coins, Package, FolderOpen, Sparkles } from 'lucide-react'
 
 // Card Details Modal Component - Has its own local state
@@ -305,6 +306,8 @@ export default function InventoryUI({ userId, locale, username }) {
   const [loading, setLoading] = useState(true)
   const [openingBox, setOpeningBox] = useState(null)
   const [openedCard, setOpenedCard] = useState(null)
+  const [openingBoxType, setOpeningBoxType] = useState(null)
+  const [showAnimation, setShowAnimation] = useState(false)
   const [selectedCard, setSelectedCard] = useState(null)
   const [message, setMessage] = useState(null)
   const params = useParams()
@@ -459,6 +462,7 @@ export default function InventoryUI({ userId, locale, username }) {
 
   const handleOpenBox = async (boxId, boxType) => {
     setOpeningBox(boxId)
+    setOpeningBoxType(boxType)
     setMessage(null)
     setOpenedCard(null)
 
@@ -467,11 +471,13 @@ export default function InventoryUI({ userId, locale, username }) {
     if (result.error) {
       setMessage({ type: 'error', text: result.error })
       setOpeningBox(null)
+      setOpeningBoxType(null)
       return
     }
 
     if (result.success) {
       setOpenedCard(result.card)
+      setShowAnimation(true) // Trigger animation
       await fetchBoxes() // Refresh boxes list
       await fetchCards() // Refresh vault to show new card instantly
       setOpeningBox(null)
@@ -480,6 +486,7 @@ export default function InventoryUI({ userId, locale, username }) {
 
   const handleUnlockBox = async (boxId) => {
     setOpeningBox(boxId)
+    setOpeningBoxType('legendary_box') // Locked boxes are always legendary
     setMessage(null)
     setOpenedCard(null)
 
@@ -488,21 +495,30 @@ export default function InventoryUI({ userId, locale, username }) {
     if (result.error) {
       setMessage({ type: 'error', text: result.error })
       setOpeningBox(null)
+      setOpeningBoxType(null)
       return
     }
 
     if (result.success) {
       setOpenedCard(result.card)
+      setShowAnimation(true) // Trigger animation
       await fetchBoxes() // Refresh boxes list
       await fetchCards() // Refresh vault to show new card instantly
-      
+
       // Update currency context if keys changed
       if (result.newKeys !== undefined) {
         updateCurrency(result.newCoins, result.newKeys)
       }
-      
+
       setOpeningBox(null)
     }
+  }
+
+  // Handle animation close
+  const handleAnimationClose = () => {
+    setShowAnimation(false)
+    setOpenedCard(null)
+    setOpeningBoxType(null)
   }
 
   const getRarityColor = (rarity) => {
@@ -609,34 +625,7 @@ export default function InventoryUI({ userId, locale, username }) {
               </div>
             )}
 
-            {/* Opened Card Display */}
-            {openedCard && (
-              <div className={`mb-6 rounded-2xl border-2 p-8 text-center backdrop-blur-sm ${getRarityColor(openedCard.rarity)}`}>
-                <div className="mb-4">
-                  <Sparkles className="w-16 h-16 mx-auto text-yellow-400 animate-pulse" />
-                </div>
-                <p className="mb-3 text-3xl font-bold text-zinc-50">You minted:</p>
-                <p className={`text-4xl font-bold mb-2 ${getRarityTextColor(openedCard.rarity)}`}>
-                  {openedCard.name}
-                </p>
-                <p className="mt-2 text-xl font-semibold uppercase tracking-wider">{openedCard.rarity}</p>
-                {/* Serial Number - Most Important Visual */}
-                <div className="mt-6 rounded-xl bg-zinc-900/70 backdrop-blur-sm px-6 py-4">
-                  <p className="text-sm text-zinc-400 mb-1">Serial Number</p>
-                  <p className="text-3xl font-bold text-zinc-50">
-                    #{openedCard.serialNumber}
-                    {openedCard.maxMints !== null ? ` of ${openedCard.maxMints}` : ' of ∞'}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setOpenedCard(null)}
-                  className="mt-6 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-3 text-white font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-blue-500/20"
-                >
-                  Close
-                </button>
-              </div>
-            )}
-
+            
             {/* My Boxes Tab */}
             {activeTab === 'boxes' && (
               <div>
@@ -761,6 +750,15 @@ export default function InventoryUI({ userId, locale, username }) {
             }}
           />
         )}
+
+        {/* Box Opening Animation */}
+        <BoxOpeningAnimation
+          isOpen={showAnimation}
+          boxType={openingBoxType}
+          card={openedCard}
+          onClose={handleAnimationClose}
+          onComplete={handleAnimationClose}
+        />
       </div>
     </div>
   )
