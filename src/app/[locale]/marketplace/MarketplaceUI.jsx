@@ -55,10 +55,13 @@ export default function MarketplaceUI({ listings, userId, userCoins, locale }) {
     }
   }
 
+  // Filter out any broken listings (missing card or template data)
+  const validListings = listings.filter(listing => listing.card && listing.card.template)
+
   // Filter and sort listings
   let filteredListings = filter === 'all'
-    ? listings
-    : listings.filter(listing => listing.card.template.rarity === filter)
+    ? validListings
+    : validListings.filter(listing => listing.card?.template?.rarity === filter)
 
   // Apply sorting
   filteredListings = [...filteredListings].sort((a, b) => {
@@ -188,8 +191,9 @@ export default function MarketplaceUI({ listings, userId, userCoins, locale }) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredListings.map(listing => {
               const card = listing.card
-              const template = card.template
-              const isOwn = listing.seller.id === userId
+              const template = card?.template
+              if (!card || !template) return null // Skip broken listings
+              const isOwn = listing.seller?.id === userId
               const canAfford = userCoins >= listing.price
 
               return (
@@ -246,7 +250,7 @@ export default function MarketplaceUI({ listings, userId, userCoins, locale }) {
                     </div>
 
                     {/* Seller Info */}
-                    {!isOwn && (
+                    {!isOwn && listing.seller?.username && (
                       <div className="flex items-center gap-2 text-xs">
                         <div className="w-6 h-6 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-600 flex items-center justify-center">
                           <span className="text-zinc-300 font-bold">{listing.seller.username[0].toUpperCase()}</span>
