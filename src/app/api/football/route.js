@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
-const API_FOOTBALL_KEY = process.env.API_FOOTBALL_KEY
+// Support both env variable names
+const API_FOOTBALL_KEY = process.env.API_FOOTBALL_KEY || process.env.FOOTBALL_API_KEY
 const API_FOOTBALL_HOST = 'v3.football.api-sports.io'
 
 // League IDs from API-Football
@@ -16,6 +17,7 @@ const LEAGUE_IDS = {
 
 /**
  * Fetch data from API-Football
+ * Supports both direct API (x-apisports-key) and RapidAPI (x-rapidapi-key)
  */
 async function fetchFromAPI(endpoint, params = {}) {
   const url = new URL(`https://${API_FOOTBALL_HOST}${endpoint}`)
@@ -25,17 +27,27 @@ async function fetchFromAPI(endpoint, params = {}) {
 
   const response = await fetch(url.toString(), {
     headers: {
+      'x-apisports-key': API_FOOTBALL_KEY,
       'x-rapidapi-key': API_FOOTBALL_KEY,
       'x-rapidapi-host': API_FOOTBALL_HOST
     },
-    next: { revalidate: 300 } // Cache for 5 minutes
+    cache: 'no-store'
   })
 
   if (!response.ok) {
-    throw new Error(`API Football error: ${response.status}`)
+    const errorText = await response.text()
+    console.error('API Football error:', response.status, errorText)
+    throw new Error(`API Football error: ${response.status} - ${errorText}`)
   }
 
   const data = await response.json()
+
+  // Check for API errors in response
+  if (data.errors && Object.keys(data.errors).length > 0) {
+    console.error('API Football errors:', data.errors)
+    throw new Error(`API Football error: ${JSON.stringify(data.errors)}`)
+  }
+
   return data.response
 }
 
@@ -57,6 +69,8 @@ export async function GET(request) {
     const supabase = await createClient()
 
     switch (action) {
+      case 'sync-all':
+        return await syncAll(supabase, searchParams)
       case 'sync-fixtures':
         return await syncFixtures(supabase, searchParams)
       case 'sync-live':
@@ -65,9 +79,11 @@ export async function GET(request) {
         return await syncResults(supabase)
       case 'sync-teams':
         return await syncTeams(supabase, searchParams)
+      case 'status':
+        return await getStatus(supabase)
       default:
         return NextResponse.json(
-          { error: 'Invalid action. Use: sync-fixtures, sync-live, sync-results, sync-teams' },
+          { error: 'Invalid action. Use: sync-all, sync-fixtures, sync-live, sync-results, sync-teams, status' },
           { status: 400 }
         )
     }
@@ -78,6 +94,190 @@ export async function GET(request) {
       { status: 500 }
     )
   }
+}
+
+/**
+ * Get current status - how many leagues, teams, matches
+ */
+async function getStatus(supabase) {
+  const { count: leagueCount } = await supabase
+    .from('leagues')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_active', true)
+
+  const { count: teamCount } = await supabase
+    .from('teams')
+    .select('*', { count: 'exact', head: true })
+
+  const { count: matchCount } = await supabase
+    .from('matches')
+    .select('*', { count: 'exact', head: true })
+    .in('status', ['scheduled', 'live'])
+
+  return NextResponse.json({
+    success: true,
+    apiKeyConfigured: !!API_FOOTBALL_KEY,
+    counts: {
+      leagues: leagueCount || 0,
+      teams: teamCount || 0,
+      upcomingMatches: matchCount || 0
+    }
+  })
+}
+
+/**
+ * Sync all - creates leagues, syncs teams and fixtures in one call
+ */
+async function syncAll(supabase, searchParams) {
+  const season = searchParams.get('season') || new Date().getFullYear()
+  const results = {
+    leagues: { created: 0, existing: 0 },
+    teams: 0,
+    matches: 0,
+    errors: []
+  }
+
+  // 1. Create Football sport if not exists
+  let { data: sport } = await supabase
+    .from('sports')
+    .select('id')
+    .eq('name', 'Football')
+    .single()
+
+  if (!sport) {
+    const { data: newSport } = await supabase
+      .from('sports')
+      .insert({ name: 'Football', icon: 'football', is_active: true })
+      .select('id')
+      .single()
+    sport = newSport
+  }
+
+  // 2. Create/update leagues
+  const leaguesConfig = [
+    { name: 'Premier League', country: 'England', api_football_id: 39, logo_url: 'https://media.api-sports.io/football/leagues/39.png' },
+    { name: 'La Liga', country: 'Spain', api_football_id: 140, logo_url: 'https://media.api-sports.io/football/leagues/140.png' },
+    { name: 'Bundesliga', country: 'Germany', api_football_id: 78, logo_url: 'https://media.api-sports.io/football/leagues/78.png' },
+    { name: 'Serie A', country: 'Italy', api_football_id: 135, logo_url: 'https://media.api-sports.io/football/leagues/135.png' },
+    { name: 'Ligue 1', country: 'France', api_football_id: 61, logo_url: 'https://media.api-sports.io/football/leagues/61.png' },
+    { name: 'Champions League', country: 'Europe', api_football_id: 2, logo_url: 'https://media.api-sports.io/football/leagues/2.png' }
+  ]
+
+  const leagueMap = {} // api_football_id -> db_id
+
+  for (const leagueConfig of leaguesConfig) {
+    const { data: existing } = await supabase
+      .from('leagues')
+      .select('id')
+      .eq('api_football_id', leagueConfig.api_football_id)
+      .single()
+
+    if (existing) {
+      leagueMap[leagueConfig.api_football_id] = existing.id
+      results.leagues.existing++
+    } else {
+      const { data: newLeague, error } = await supabase
+        .from('leagues')
+        .insert({
+          ...leagueConfig,
+          sport_id: sport?.id,
+          is_active: true
+        })
+        .select('id')
+        .single()
+
+      if (!error && newLeague) {
+        leagueMap[leagueConfig.api_football_id] = newLeague.id
+        results.leagues.created++
+      }
+    }
+  }
+
+  // 3. Sync fixtures for each league (which also creates teams)
+  for (const apiLeagueId of Object.keys(LEAGUE_IDS).map(k => LEAGUE_IDS[k])) {
+    const dbLeagueId = leagueMap[apiLeagueId]
+    if (!dbLeagueId) continue
+
+    try {
+      // Fetch upcoming fixtures
+      const fixtures = await fetchFromAPI('/fixtures', {
+        league: apiLeagueId,
+        season: season,
+        next: 15
+      })
+
+      for (const fixture of fixtures || []) {
+        try {
+          // Get or create teams
+          const homeTeamId = await getOrCreateTeam(supabase, fixture.teams.home, dbLeagueId)
+          const awayTeamId = await getOrCreateTeam(supabase, fixture.teams.away, dbLeagueId)
+
+          if (!homeTeamId || !awayTeamId) {
+            results.errors.push(`Failed to create teams for fixture ${fixture.fixture.id}`)
+            continue
+          }
+
+          // Check if match exists
+          const { data: existingMatch } = await supabase
+            .from('matches')
+            .select('id')
+            .eq('api_football_id', fixture.fixture.id)
+            .single()
+
+          if (!existingMatch) {
+            // Create match with initial pools
+            const { error } = await supabase
+              .from('matches')
+              .insert({
+                api_football_id: fixture.fixture.id,
+                league_id: dbLeagueId,
+                home_team_id: homeTeamId,
+                away_team_id: awayTeamId,
+                match_date: fixture.fixture.date,
+                venue: fixture.fixture.venue?.name || null,
+                status: mapFixtureStatus(fixture.fixture.status.short),
+                home_score: fixture.goals.home,
+                away_score: fixture.goals.away,
+                minute: fixture.fixture.status.elapsed,
+                total_pool: 0,
+                home_pool: 0,
+                draw_pool: 0,
+                away_pool: 0,
+                prediction_count: 0,
+                is_settled: false
+              })
+
+            if (!error) {
+              results.matches++
+            } else {
+              results.errors.push(`Match insert error: ${error.message}`)
+            }
+          }
+
+          // Count teams that were created
+          const { data: team } = await supabase
+            .from('teams')
+            .select('id')
+            .eq('api_football_id', fixture.teams.home.id)
+            .single()
+          if (team) results.teams++
+        } catch (fixtureError) {
+          results.errors.push(`Fixture ${fixture.fixture.id}: ${fixtureError.message}`)
+        }
+      }
+    } catch (leagueError) {
+      results.errors.push(`League ${apiLeagueId}: ${leagueError.message}`)
+    }
+  }
+
+  return NextResponse.json({
+    success: true,
+    message: 'Sync completed',
+    results: {
+      ...results,
+      errors: results.errors.length > 0 ? results.errors.slice(0, 10) : undefined
+    }
+  })
 }
 
 /**

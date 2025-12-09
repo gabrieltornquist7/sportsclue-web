@@ -422,10 +422,27 @@ export default function PredictionsUI({
           {activeTab === 'matches' && (
             <div className="space-y-4">
               {upcomingMatches.length === 0 ? (
-                <div className="rounded-2xl bg-zinc-900/60 backdrop-blur-md border border-zinc-800/50 p-16 text-center">
+                <div className="rounded-2xl bg-zinc-900/60 backdrop-blur-md border border-zinc-800/50 p-12 text-center">
                   <Calendar className="w-16 h-16 text-zinc-600 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-zinc-300 mb-2">No Upcoming Matches</h3>
-                  <p className="text-zinc-500">Check back later for new matches to predict</p>
+                  <p className="text-zinc-500 mb-6">Match data needs to be synced from API-Football</p>
+
+                  <div className="max-w-md mx-auto p-4 rounded-xl bg-amber-900/20 border border-amber-500/30 text-left mb-6">
+                    <h4 className="font-semibold text-amber-300 mb-2">Setup Required</h4>
+                    <ol className="text-sm text-amber-200/80 space-y-2 list-decimal list-inside">
+                      <li>Get a free API key from <a href="https://dashboard.api-football.com/register" target="_blank" rel="noopener noreferrer" className="underline text-amber-300">API-Football</a></li>
+                      <li>Add <code className="bg-black/30 px-1 rounded">FOOTBALL_API_KEY</code> to your environment variables</li>
+                      <li>Go to the admin page to sync matches</li>
+                    </ol>
+                  </div>
+
+                  <a
+                    href={`/${locale}/predictions/admin`}
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 font-semibold text-white shadow-lg shadow-blue-500/20 transition-all"
+                  >
+                    <Calendar className="w-4 h-4" />
+                    Sync Match Data
+                  </a>
                 </div>
               ) : (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
