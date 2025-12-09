@@ -19,7 +19,8 @@ import {
   LayoutGrid,
   FolderOpen,
   Store,
-  ArrowRightLeft
+  ArrowRightLeft,
+  TrendingUp
 } from 'lucide-react'
 
 export default function AppNavBar({ locale, username, avatarUrl }) {
@@ -103,6 +104,27 @@ export default function AppNavBar({ locale, username, avatarUrl }) {
                   )}
                   {!isActive('/play') && (
                     <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                  )}
+                </a>
+
+                {/* Predictions Link */}
+                <a
+                  href={`/${locale}/predictions`}
+                  className={`group relative px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                    isActive('/predictions')
+                      ? 'text-green-400'
+                      : 'text-zinc-300 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4" />
+                    <span className="tracking-wide">Predictions</span>
+                  </div>
+                  {isActive('/predictions') && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg shadow-green-500/50" />
+                  )}
+                  {!isActive('/predictions') && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-green-500 to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                   )}
                 </a>
 
@@ -322,6 +344,18 @@ export default function AppNavBar({ locale, username, avatarUrl }) {
                 >
                   <Gamepad2 className="w-5 h-5" />
                   <span>Play</span>
+                </a>
+
+                <a
+                  href={`/${locale}/predictions`}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isActive('/predictions')
+                      ? 'bg-green-600/20 text-green-400 border border-green-500/30'
+                      : 'text-zinc-300 hover:text-white hover:bg-zinc-800/50'
+                  }`}
+                >
+                  <TrendingUp className="w-5 h-5" />
+                  <span>Predictions</span>
                 </a>
 
                 {/* Collections Group */}
